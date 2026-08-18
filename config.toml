@@ -222,9 +222,9 @@ disableHugoGeneratorInject = false
     url        = "https://github.com/zellij-org/zellij"
   [[menu.main]]
     weight = 8
-    identifier = "stickers"
-    name       = "Stickers"
-    url        = "stickers/"
+    identifier = "zellij-online"
+    name       = "Zellij.online"
+    url        = "zellij-online/"
   [[menu.main]]
     weight = 9
     identifier = "faq"

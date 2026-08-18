@@ -82,6 +82,8 @@ Zellij includes a built-in web server that serves sessions directly in your brow
 
 The web client makes the terminal emulator optional, not required. Set it up locally or share sessions with your team. See our [web client tutorial](/tutorials/web-client) for setup instructions.
 
+Running the web server yourself means handling your own certificates and network exposure. If you would rather not, the Zellij maintainers also run [Zellij.online](https://zellij.online), a paid hosted service that handles this for you. It is currently in beta, and the details of how it relates to the open source project are [written up here](/zellij-online/).
+
 ## Plugin System
 
 {{<figure src="/img/develop-rust-plugin.png" alt="A Zellij pane instructing the user about the plugin development flow">}}

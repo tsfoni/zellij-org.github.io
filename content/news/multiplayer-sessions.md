@@ -45,3 +45,11 @@ Not yet, but we're working on it!
 Right now we're in the process of seeking funds in order to start a free service that would allow users to receive a shareable and secure URL from within Zellij and just share it with their friends, giving them permission and moderating who is connected.
 
 If you're as excited about this as we are, you can help out by registering for early access: https://www.devsession.is
+
+---
+
+**Update (2026):** the two open questions above have since been answered, so this post is left as written with the following corrections.
+
+Easier remote session access did arrive, in Zellij itself. Version 0.43.0 added a [built-in web client](/tutorials/web-client), which serves sessions from a web server bundled with Zellij, and 0.44.0 added [remote session attachment](/features/#remote-session-access) over HTTPS along with read-only sharing tokens. The ngrok and VPN workarounds described above are no longer necessary. None of it requires a third-party service.
+
+The devsession project linked at the end of this post never launched. The idea behind it eventually [grew into Zellij.online](https://zellij.online), a hosted session sharing service run by the Zellij maintainers. Unlike what was described in 2021, it is a commercial service with a free tier rather than a wholly free one, and it is currently in beta. Zellij itself remains free and open source, and its own web client remains fully self-hostable. That relationship is [explained in full here](/zellij-online/).

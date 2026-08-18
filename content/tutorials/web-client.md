@@ -63,6 +63,8 @@ web_server_cert "/home/aram/.certs/localhost+3.pem"
 web_server_key "/home/aram/.certs/localhost+3-key.pem"
 ```
 
+*If you want to share sessions regularly but would rather not manage certificates and network exposure yourself, the Zellij maintainers run [a hosted option](https://zellij.online) that takes care of it. It is currently in beta. Self-hosting, as described above, remains fully supported and is not going anywhere. There is more about how the two relate [here](/zellij-online/).*
+
 ## Read-only Tokens
 It's possible to create special "read-only" authentication tokens. When a user logs in with these tokens, they are not able to affect the session in any way - only to observe it. This can be useful for demonstrations, screencasts or teaching. We can create read-only tokens through the `share` plugin's token screen or from the CLI with: `zellij web --create-read-only-token`.
 

@@ -186,8 +186,14 @@
     -i, --in-place
             Open the new pane in place of the current pane, temporarily suspending it
 
+        --no-focus
+            Open the plugin pane without changing the focus of any client
+
     -s, --skip-plugin-cache
             Skip the plugin cache and force reloading of the plugin (good for development)
+
+        --tab-id &lt;TAB_ID&gt;
+            Open the plugin pane in the tab with this id (conflicts with --in-place)
 
         --width &lt;WIDTH&gt;
             The width if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
@@ -201,7 +207,7 @@
 <h2 id="zellij-pipe"><a class="header" href="#zellij-pipe">Zellij Pipe</a></h2>
 <p>Zellij <a href="./plugin-pipes.html">pipes</a> provide a way to send messages to one or more plugins, launching them on first-message if they are not running.</p>
 <p>eg.</p>
-<pre><code>$ zellij plugin -- https://path/to/my/plugin.wasm
+<pre><code>$ zellij pipe --name my_pipe_name -- my_arbitrary_data
 </code></pre>
 <p><strong>USAGE</strong>:</p>
 <pre><code>zellij pipe [OPTIONS] [--] &lt;PAYLOAD&gt;
@@ -217,7 +223,6 @@ zellij pipe --name my_pipe_name -- my_arbitrary_data
 * Pipe data into this command's STDIN and get output from the plugin on this command's STDOUT
 
 tail -f /tmp/my-live-logfile | zellij pipe --name logs --plugin https://example.com/my-plugin.wasm | wc -l
-    zellij plugin [OPTIONS] [--] &lt;URL&gt;
 </code></pre>
 <p><strong>ARGS</strong>:</p>
 <pre><code>    &lt;PAYLOAD&gt;    The data to send down this pipe (if blank, will listen to STDIN)

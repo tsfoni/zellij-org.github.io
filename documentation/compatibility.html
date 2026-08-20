@@ -156,6 +156,30 @@
 <h2 id="issues"><a class="header" href="#issues">Issues</a></h2>
 <p>Please report issues <a href="https://github.com/zellij-org/zellij/issues">here.</a></p>
 <hr />
+<h1 id="terminal-features"><a class="header" href="#terminal-features">Terminal Features</a></h1>
+<p>Zellij sits between the programs running in its panes and the terminal emulator it runs in. Some terminal capabilities are therefore passed through, translated or emulated. When Zellij starts, it queries the terminal it is running in for the features it supports, and only advertises those to the programs running inside panes.</p>
+<h2 id="images-kitty-graphics-protocol"><a class="header" href="#images-kitty-graphics-protocol">Images (kitty graphics protocol)</a></h2>
+<p>Programs running inside panes can display images using the <a href="https://sw.kovidgoyal.net/kitty/graphics-protocol/">kitty graphics protocol</a>. Zellij keeps track of image placements per pane, so images survive resizing, relayouts, scrolling through the scrollback, fullscreen, and floating or pinned panes.</p>
+<p>This requires the host terminal to support the protocol, which is queried when Zellij starts. It can be turned off with the <a href="./options.html#support_kitty_graphics_protocol"><code>support_kitty_graphics_protocol</code></a> option (changing it requires restarting Zellij).</p>
+<h2 id="sixel"><a class="header" href="#sixel">Sixel</a></h2>
+<p>Sixel graphics are supported. Sixel support is only advertised to programs running in panes (through <code>DA1</code> and <code>XTSMGRAPHICS</code>) if the terminal Zellij is attached to actually supports Sixel. In previous versions it was advertised unconditionally, which could cause programs to emit Sixel data into terminals that could not display it.</p>
+<h2 id="desktop-notifications"><a class="header" href="#desktop-notifications">Desktop notifications</a></h2>
+<p>Programs running in panes can raise desktop notifications through <code>OSC 9</code>, <code>OSC 99</code> (the kitty notification protocol) and <code>OSC 777</code>. Zellij forwards them to all attached host terminals, using the protocol selected by the <a href="./options.html#host_notification_protocol"><code>host_notification_protocol</code></a> option:</p>
+<ul>
+<li><code>auto</code> (default) - <code>OSC 99</code> for terminals that support it (eg. kitty), <code>OSC 9</code> otherwise</li>
+<li><code>osc9</code> / <code>osc99</code> - always use the given protocol</li>
+<li><code>bell</code> - emit a terminal bell instead</li>
+<li><code>off</code> - do not forward notifications</li>
+</ul>
+<p>Whether a notification is actually shown is up to the host terminal and the operating system.</p>
+<h2 id="terminal-focus-reporting"><a class="header" href="#terminal-focus-reporting">Terminal focus reporting</a></h2>
+<p>Focus in/out events reported by the host terminal (<code>CSI I</code> / <code>CSI O</code>) are tracked per connected client and forwarded to panes that enabled focus reporting (mode <code>1004</code>). This also works across <a href="./nested-sessions.html">nested sessions</a>.</p>
+<h2 id="clipboard-osc-52"><a class="header" href="#clipboard-osc-52">Clipboard (OSC 52)</a></h2>
+<p>Copying to the system clipboard through <code>OSC 52</code> works as before, and this capability is advertised to programs through <code>DA1</code>. If the terminal does not support <code>OSC 52</code>, an external utility can be used instead with the <a href="./options.html#copy_command"><code>copy_command</code></a> option.</p>
+<p><strong>Reading</strong> the clipboard through <code>OSC 52</code> is disabled by default since <code>0.45.0</code>: programs asking for the clipboard contents receive an empty reply. It can be enabled with the <a href="./options.html#dangerously_enable_paste_buffer_read"><code>dangerously_enable_paste_buffer_read</code></a> option, but note that once enabled, any program in any pane - including one running on a remote machine over SSH - can read the clipboard without prompting.</p>
+<h2 id="terminal-color-scheme"><a class="header" href="#terminal-color-scheme">Terminal color scheme</a></h2>
+<p>Zellij follows the color scheme reported by the host terminal (<code>DSR 997</code> replies and <code>CSI 2031</code> notifications) and can switch between a light and a dark theme accordingly - see <a href="./themes.html#automatic-dark-and-light-theme-switching">themes</a>. Programs running in panes can subscribe to these notifications themselves with <code>CSI ? 2031 h</code>, and query the current mode with <code>DECRQM</code>; Zellij answers these queries itself.</p>
+<hr />
 <h1 id="known-issues"><a class="header" href="#known-issues">Known Issues</a></h1>
 <h2 id="the-status-bar-fonts-dont-render-correctly"><a class="header" href="#the-status-bar-fonts-dont-render-correctly">The status bar fonts don't render correctly:</a></h2>
 <p>This most likely is caused by a missing character in the font.</p>
@@ -184,6 +208,8 @@ under Linux/OS X such as GNOMEs default Terminal, terminator, and more.</p>
 <p>A workaround for this was added in zellij &gt; 0.24.0 and enables the user to
 specify a custom command that copies selected text to the system clipboard.
 Refer to lines containing "copy_command" from the output of <code>zellij setup --dump-config</code>.</p>
+<p>Note that since <code>0.45.0</code>, the <code>copy_command</code> process is no longer killed while it
+still owns the selection, which fixes copying with utilities such as <code>wl-copy</code>.</p>
 <p>For technical background, refer to <a href="https://github.com/zellij-org/zellij/issues/627">this
 issue</a> and <a href="https://github.com/zellij-org/zellij/pull/996">this merge
 request</a></p>

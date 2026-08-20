@@ -282,11 +282,22 @@ enforce_https_on_localhost true // whether to enforce an https certificate being
 </ul>
 <pre><code>$ zellij web --status --timeout 5 --ip 0.0.0.0 --port 443
 </code></pre>
+<h2 id="installing-as-an-app-pwa"><a class="header" href="#installing-as-an-app-pwa">Installing as an app (PWA)</a></h2>
+<p>The web client is a Progressive Web App: it serves a web manifest, icons and the relevant iOS meta tags, and so can be installed as a standalone application from Chromium-based browsers, Firefox, Safari and iOS.</p>
+<p>Once installed, it opens in its own window without browser chrome. This works behind a reverse proxy as well, including when the client is served under a <a href="#base_url"><code>base_url</code></a> prefix. There is nothing to configure.</p>
 <h2 id="mobile-support"><a class="header" href="#mobile-support">Mobile Support</a></h2>
-<p>The web client supports mobile browsers. Two behaviors are specifically adapted for mobile devices:</p>
+<p>The web client detects mobile browsers (through a coarse pointer and user-agent detection) and switches to a dedicated mobile interface automatically. There is nothing to configure.</p>
+<p>The mobile interface includes:</p>
 <ol>
 <li><strong>Viewport Resizing</strong>: The terminal automatically resizes to match the real mobile viewport, accounting for dynamic changes such as the address bar showing/hiding and the on-screen keyboard appearing/disappearing.</li>
 <li><strong>Touch Scroll</strong>: Vertical touch swipes are converted to terminal scroll events, allowing natural scrolling through terminal output.</li>
+<li><strong>Touch chrome</strong>: touch-friendly UI controls replacing the keyboard-driven ones.</li>
+<li><strong>Pane and tab pickers</strong>: for switching between panes and tabs without keybindings.</li>
+<li><strong>On-screen keyboard</strong>: including keys that physical mobile keyboards lack (this can also be shown and hidden by plugins).</li>
+<li><strong>Panning and a fit toggle</strong>: to move around a session larger than the screen, or to fit it to the screen.</li>
+<li><strong>Single pane fullscreen</strong>: focusing on one pane at a time, which is often the only practical layout on a phone.</li>
+<li><strong>Light theme support</strong>: following the device color scheme.</li>
+<li><strong>Welcome screen</strong>: rendered client-side when connecting without an existing session.</li>
 </ol>
 <h2 id="this-feature-can-optionally-be-disabled-at-compile-time"><a class="header" href="#this-feature-can-optionally-be-disabled-at-compile-time">This feature can optionally be disabled at compile-time</a></h2>
 <p>For those who are averse to this feature (even when it's disabled - which is the default), Zellij can be compiled completely without this feature or its dependencies by removing the <code>web-server-capability</code> compile-time flag. For convenience, Zellij also provides an additional pre-built binary compiled without this flag called <code>zellij-no-web</code>.</p>
@@ -295,7 +306,7 @@ enforce_https_on_localhost true // whether to enforce an https certificate being
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="session-resurrection.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="shell-integration.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -309,7 +320,7 @@ enforce_https_on_localhost true // whether to enforce an https certificate being
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="session-resurrection.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="shell-integration.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 

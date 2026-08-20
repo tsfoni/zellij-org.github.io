@@ -157,6 +157,10 @@
 <blockquote>
 <p><strong>Migration Note:</strong> The <code>--disable-mouse-mode</code> and <code>--no-pane-frames</code> flags have been removed. Use <code>--mouse-mode false</code> (equivalent of <code>--disable-mouse-mode</code>) and <code>--pane-frames false</code> (equivalent of <code>--no-pane-frames</code>) instead.</p>
 </blockquote>
+<p>Every option that can be set in the <a href="./options.html">configuration file</a> also has a corresponding flag here, using the same name in kebab-case (eg. the <code>nested_session_handling</code> option is <code>--nested-session-handling</code>).</p>
+<blockquote>
+<p><strong>Note:</strong> since <code>0.45.0</code> (which uses clap 4 for argument parsing), repeating the same flag no longer produces an error - the last occurrence overrides the previous ones. Help output is also styled and colored.</p>
+</blockquote>
 <pre><code>USAGE:
     zellij options [OPTIONS]
 
@@ -174,6 +178,10 @@ OPTIONS:
         --copy-on-select &lt;COPY_ON_SELECT&gt;
             Automatically copy when selecting text (true or false) [possible values: true, false]
 
+        --dangerously-enable-paste-buffer-read &lt;DANGEROUSLY_ENABLE_PASTE_BUFFER_READ&gt;
+            Allow programs running in panes to read the clipboard through OSC 52 (true or false)
+            [possible values: true, false]
+
         --default-layout &lt;DEFAULT_LAYOUT&gt;
             Set the default layout
 
@@ -186,7 +194,9 @@ OPTIONS:
         --disable-mouse-mode
             Disable handling of mouse events (REMOVED - use --mouse-mode false instead)
 
-            Print help information
+        --host-notification-protocol &lt;HOST_NOTIFICATION_PROTOCOL&gt;
+            The protocol used to forward pane notifications to the host terminal [possible values:
+            auto, osc9, osc99, bell, off]
 
         --layout-dir &lt;LAYOUT_DIR&gt;
             Set the layout_dir, defaults to subdirectory of config dir
@@ -195,9 +205,21 @@ OPTIONS:
             Mirror session when multiple users are connected (true or false) [possible values: true,
             false]
 
+        --mouse-hover-tips &lt;MOUSE_HOVER_TIPS&gt;
+            Show contextual help tips when hovering with the mouse (true or false) [possible values:
+            true, false]
+
         --mouse-mode &lt;MOUSE_MODE&gt;
             Set the handling of mouse events (true or false) Can be temporarily bypassed by the
             [SHIFT] key [possible values: true, false]
+
+        --mouse-scroll-resize &lt;MOUSE_SCROLL_RESIZE&gt;
+            Resize the focused pane with Ctrl + ScrollWheel (true or false) [possible values: true,
+            false]
+
+        --nested-session-handling &lt;NESTED_SESSION_HANDLING&gt;
+            How to handle a nested Zellij session running inside a pane [possible values: ask,
+            fullscreen, descend, never]
 
         --no-pane-frames
             Disable display of pane frames (REMOVED - use --pane-frames false instead)
@@ -205,11 +227,18 @@ OPTIONS:
         --on-force-close &lt;ON_FORCE_CLOSE&gt;
             Set behaviour on force close (quit or detach)
 
+        --osc133-command-selection &lt;OSC133_COMMAND_SELECTION&gt;
+            Select the whole command and its output when triple-clicking inside OSC 133 marked
+            output (true or false) [possible values: true, false]
+
         --pane-frames &lt;PANE_FRAMES&gt;
             Set display of the pane frames (true or false) [possible values: true, false]
 
+        --pane-frame-style &lt;PANE_FRAME_STYLE&gt;
+            Set the style of the pane frames [possible values: full, titles, none]
+
         --scroll-buffer-size &lt;SCROLL_BUFFER_SIZE&gt;
-            
+            The number of lines to keep in the scrollback buffer of each pane
 
         --scrollback-editor &lt;SCROLLBACK_EDITOR&gt;
             Explicit full path to open the scrollback editor (default is $EDITOR or $VISUAL)
@@ -221,11 +250,28 @@ OPTIONS:
             Allow plugins to use a more simplified layout that is compatible with more fonts (true
             or false) [possible values: true, false]
 
+        --stacked-pane-list &lt;STACKED_PANE_LIST&gt;
+            Render stacked panes as a list of titles with the expanded pane at the bottom (true or
+            false) [possible values: true, false]
+
+        --support-kitty-graphics-protocol &lt;SUPPORT_KITTY_GRAPHICS_PROTOCOL&gt;
+            Support the kitty graphics (image) protocol, if the terminal supports it (true or false)
+            [possible values: true, false]
+
         --theme &lt;THEME&gt;
             Set the default theme
 
+        --theme-dark &lt;THEME_DARK&gt;
+            Set the theme to use when the host terminal is in dark mode
+
         --theme-dir &lt;THEME_DIR&gt;
             Set the theme_dir, defaults to subdirectory of config dir
+
+        --theme-light &lt;THEME_LIGHT&gt;
+            Set the theme to use when the host terminal is in light mode
+
+        --word-separators &lt;WORD_SEPARATORS&gt;
+            The characters (in addition to whitespace) that terminate a word when double-clicking
 </code></pre>
 
                     </main>
@@ -236,7 +282,7 @@ OPTIONS:
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="migrating-yaml-config.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="controlling-zellij-through-cli.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -250,7 +296,7 @@ OPTIONS:
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="migrating-yaml-config.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="controlling-zellij-through-cli.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -188,6 +188,8 @@
 <li><a href="#hostterminalthememode">HostTerminalThemeMode</a></li>
 <li><a href="#clientinfo">ClientInfo</a></li>
 <li><a href="#modeinfo">ModeInfo</a></li>
+<li><a href="#paneframestyle">PaneFrameStyle</a></li>
+<li><a href="#styledtext">StyledText</a></li>
 <li><a href="#mouse">Mouse</a></li>
 <li><a href="#copydestination">CopyDestination</a></li>
 <li><a href="#permissiontype">PermissionType</a></li>
@@ -585,6 +587,7 @@ open_command_pane(cmd, BTreeMap::new());
     pub lines_below_viewport: Vec&lt;String&gt;,
     pub viewport: Vec&lt;String&gt;,
     pub selected_text: Option&lt;SelectedText&gt;,
+    pub cursor: Option&lt;(usize, usize)&gt;,
 }
 <span class="boring">}</span></code></pre></pre>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -592,6 +595,7 @@ open_command_pane(cmd, BTreeMap::new());
 <tr><td><code>lines_below_viewport</code></td><td><code>Vec&lt;String&gt;</code></td><td>Lines below the current viewport (only populated if full scrollback is requested)</td></tr>
 <tr><td><code>viewport</code></td><td><code>Vec&lt;String&gt;</code></td><td>Currently visible lines</td></tr>
 <tr><td><code>selected_text</code></td><td><code>Option&lt;SelectedText&gt;</code></td><td>Currently selected text range, if any</td></tr>
+<tr><td><code>cursor</code></td><td><code>Option&lt;(usize, usize)&gt;</code></td><td>Cursor position (x, y) inside the viewport, if visible</td></tr>
 </tbody></table>
 </div>
 <p><strong>Note:</strong> <code>lines_above_viewport</code> and <code>lines_below_viewport</code> are only populated when explicitly requested (e.g., with <code>get_full_scrollback: true</code> in <code>get_pane_scrollback</code>). This is for performance reasons.</p>
@@ -875,6 +879,13 @@ open_command_pane(cmd, BTreeMap::new());
     pub web_server_ip: Option&lt;IpAddr&gt;,
     pub web_server_port: Option&lt;u16&gt;,
     pub web_server_capability: Option&lt;bool&gt;,
+    pub pane_frame_style: Option&lt;PaneFrameStyle&gt;,
+    pub session_dimmed: Option&lt;bool&gt;,
+    pub session_ancestry: Vec&lt;String&gt;,
+    pub host_fullscreen: Option&lt;bool&gt;,
+    pub nested_ascend_keys: Vec&lt;KeyWithModifier&gt;,
+    pub session_ascended: Option&lt;bool&gt;,
+    pub nested_descend_keys: Vec&lt;KeyWithModifier&gt;,
 }
 <span class="boring">}</span></code></pre></pre>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -893,6 +904,46 @@ open_command_pane(cmd, BTreeMap::new());
 <tr><td><code>web_server_ip</code></td><td><code>Option&lt;IpAddr&gt;</code></td><td>Configured web server IP</td></tr>
 <tr><td><code>web_server_port</code></td><td><code>Option&lt;u16&gt;</code></td><td>Configured web server port</td></tr>
 <tr><td><code>web_server_capability</code></td><td><code>Option&lt;bool&gt;</code></td><td>Whether web server functionality is available</td></tr>
+<tr><td><code>pane_frame_style</code></td><td><code>Option&lt;</code><a href="#paneframestyle"><code>PaneFrameStyle</code></a><code>&gt;</code></td><td>The frame style currently used in this session</td></tr>
+<tr><td><code>session_dimmed</code></td><td><code>Option&lt;bool&gt;</code></td><td>Whether this session's UI is dimmed because focus was handed to a nested session</td></tr>
+<tr><td><code>session_ancestry</code></td><td><code>Vec&lt;String&gt;</code></td><td>The names of the sessions this session is nested in, outermost first</td></tr>
+<tr><td><code>host_fullscreen</code></td><td><code>Option&lt;bool&gt;</code></td><td>Whether this session's pane is fullscreen inside its host session</td></tr>
+<tr><td><code>nested_ascend_keys</code></td><td><code>Vec&lt;</code><a href="#keywithmodifier"><code>KeyWithModifier</code></a><code>&gt;</code></td><td>Keys bound to <code>FocusHostSession</code></td></tr>
+<tr><td><code>session_ascended</code></td><td><code>Option&lt;bool&gt;</code></td><td>Whether focus has been handed back up to the host session</td></tr>
+<tr><td><code>nested_descend_keys</code></td><td><code>Vec&lt;</code><a href="#keywithmodifier"><code>KeyWithModifier</code></a><code>&gt;</code></td><td>Keys bound to <code>FocusGuestSession</code></td></tr>
+</tbody></table>
+</div>
+<p>The last seven fields relate to <a href="./nested-sessions.html">nested sessions</a> and to the <a href="./options.html#pane_frame_style">pane frame style</a>. They allow plugins that render session chrome (eg. the tab-bar and status-bar) to indicate where the session sits in the nesting hierarchy and how to leave it.</p>
+<hr />
+<h2 id="paneframestyle"><a class="header" href="#paneframestyle"><code>PaneFrameStyle</code></a></h2>
+<p>The style used to render pane frames in the session. See the <a href="./options.html#pane_frame_style"><code>pane_frame_style</code></a> option.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum PaneFrameStyle {
+    Full,
+    Titles,
+    None,
+}
+<span class="boring">}</span></code></pre></pre>
+<div class="table-wrapper"><table><thead><tr><th>Variant</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Full</code></td><td>A full border around each pane</td></tr>
+<tr><td><code>Titles</code></td><td>A single title line above each pane (default)</td></tr>
+<tr><td><code>None</code></td><td>No pane frames</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="styledtext"><a class="header" href="#styledtext"><code>StyledText</code></a></h2>
+<p>A piece of text with a set of highlighted (emphasized) character indices. Used, among others, as the payload of the <a href="./plugin-api-events.html#hinttext"><code>HintText</code></a> event. It can be turned into a <code>Text</code> UI component with <code>Text::from(styled_text)</code>.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct StyledText {
+    pub text: String,
+    pub indices: Vec&lt;Vec&lt;usize&gt;&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>text</code></td><td><code>String</code></td><td>The text itself</td></tr>
+<tr><td><code>indices</code></td><td><code>Vec&lt;Vec&lt;usize&gt;&gt;</code></td><td>Character indices to emphasize, grouped by <a href="./plugin-ui-rendering.html">color index</a></td></tr>
 </tbody></table>
 </div>
 <hr />
@@ -903,6 +954,8 @@ open_command_pane(cmd, BTreeMap::new());
 </span>pub enum Mouse {
     ScrollUp(usize),
     ScrollDown(usize),
+    ScrollLeft(usize),
+    ScrollRight(usize),
     LeftClick(isize, usize),
     RightClick(isize, usize),
     Hold(isize, usize),
@@ -913,6 +966,8 @@ open_command_pane(cmd, BTreeMap::new());
 <div class="table-wrapper"><table><thead><tr><th>Variant</th><th>Parameters</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>ScrollUp(n)</code></td><td><code>usize</code> - number of lines</td><td>Mouse wheel scrolled up</td></tr>
 <tr><td><code>ScrollDown(n)</code></td><td><code>usize</code> - number of lines</td><td>Mouse wheel scrolled down</td></tr>
+<tr><td><code>ScrollLeft(n)</code></td><td><code>usize</code> - number of columns</td><td>Mouse wheel scrolled left (horizontal scroll)</td></tr>
+<tr><td><code>ScrollRight(n)</code></td><td><code>usize</code> - number of columns</td><td>Mouse wheel scrolled right (horizontal scroll)</td></tr>
 <tr><td><code>LeftClick(line, col)</code></td><td><code>isize, usize</code> - line and column</td><td>Left mouse button clicked</td></tr>
 <tr><td><code>RightClick(line, col)</code></td><td><code>isize, usize</code> - line and column</td><td>Right mouse button clicked</td></tr>
 <tr><td><code>Hold(line, col)</code></td><td><code>isize, usize</code> - line and column</td><td>Mouse button held (drag)</td></tr>
@@ -1074,6 +1129,17 @@ open_command_pane(cmd, BTreeMap::new());
 <tr><td><code>NextSwapLayout</code></td><td>Switch to next swap layout</td></tr>
 <tr><td><code>LaunchOrFocusPlugin { plugin, .. }</code></td><td>Launch or focus a plugin</td></tr>
 <tr><td><code>RenameSession { name }</code></td><td>Rename the current session</td></tr>
+<tr><td><code>FocusLastPane</code></td><td>Focus the previously focused pane</td></tr>
+<tr><td><code>ToggleFocusNoUiFullscreen</code></td><td>Toggle fullscreen for the focused pane, covering the UI bars as well</td></tr>
+<tr><td><code>SetPaneFrameStyle { pane_frame_style }</code></td><td>Set the <a href="#paneframestyle">pane frame style</a> for the session</td></tr>
+<tr><td><code>AreFloatingPanesVisible</code></td><td>Query whether floating panes are visible</td></tr>
+<tr><td><code>SetDarkTheme</code> / <code>SetLightTheme</code> / <code>ToggleTheme</code></td><td>Switch between the configured dark and light themes</td></tr>
+<tr><td><code>FocusHostSession</code></td><td><a href="./nested-sessions.html">Nested sessions</a>: move focus to the host session</td></tr>
+<tr><td><code>FocusGuestSession</code></td><td><a href="./nested-sessions.html">Nested sessions</a>: descend into the guest session in the focused pane</td></tr>
+<tr><td><code>ToggleHostFullscreen</code></td><td><a href="./nested-sessions.html">Nested sessions</a>: toggle this session's pane fullscreen in its host</td></tr>
+<tr><td><code>ScrollToPreviousPrompt</code> / <code>ScrollToNextPrompt</code></td><td>Jump between shell prompts in the scrollback (<a href="./shell-integration.html">OSC 133</a>)</td></tr>
+<tr><td><code>SelectCommandAtScrollPosition</code></td><td>Select the command and output at the scroll position (<a href="./shell-integration.html">OSC 133</a>)</td></tr>
+<tr><td><code>CopyLastCommandOutput</code></td><td>Copy the last command's output to the clipboard (<a href="./shell-integration.html">OSC 133</a>)</td></tr>
 </tbody></table>
 </div>
 <p>For the complete list, see the <a href="https://github.com/zellij-org/zellij/blob/main/zellij-utils/src/input/actions.rs">source code</a>.</p>
@@ -1120,12 +1186,17 @@ open_command_pane(cmd, BTreeMap::new());
     InterceptedKeyPress,
     UserAction,
     PaneRenderReport,
-    PaneRenderReportWithAnsi,
     ActionComplete,
     CwdChanged,
     AvailableLayoutInfo,
     PluginConfigurationChanged,
     HighlightClicked,
+    CommandChanged,
+    InitialKeybinds,
+    HostTerminalThemeChanged,
+    SoftKeyboardVisibilityChanged,
+    HintText,
+    ActivePaneScroll,
 }
 <span class="boring">}</span></code></pre></pre>
 <p>See <a href="./plugin-api-events.html">Events</a> for details on each event and its payload.</p>

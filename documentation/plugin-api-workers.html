@@ -184,7 +184,7 @@ register_worker!(
 <h2 id="sending-messages-to-workers"><a class="header" href="#sending-messages-to-workers">Sending messages to workers</a></h2>
 <p>When a plugin (or another worker) wishes to send messages to a worker, they use the <a href="./plugin-api-commands.html#post_message_to"><code>post_message_to</code></a> plugin command. They should use the worker namespace used when registering the worker, eg. <code>post_message_to("test", ...)</code> for the <code>test_worker</code> example above.</p>
 <h2 id="sending-messages-from-workers-to-plugins"><a class="header" href="#sending-messages-from-workers-to-plugins">Sending messages from workers to plugins</a></h2>
-<p>When a worker wishes to send a message to a plugin, they use the <a href="./plugin-api-commands.html#post_message_to_plugin"><code>post_message_to_plugin</code></a> command. This message will trigger the plugin's <a href="./plugin-api-lifecycle.html#update">update</a> method with a <a href="./plugin-api-events.html#CustomMessage"><code>CustomMessage</code></a> event. Be sure to <a href="./plugin-api-commands.html#subscribe"><code>subscribe</code></a> to it beforehand!</p>
+<p>When a worker wishes to send a message to a plugin, they use the <a href="./plugin-api-commands.html#post_message_to_plugin"><code>post_message_to_plugin</code></a> command. This message will trigger the plugin's <a href="./plugin-lifecycle.html#update">update</a> method with a <a href="./plugin-api-events.html#custommessage"><code>CustomMessage</code></a> event. Be sure to <a href="./plugin-api-commands.html#subscribe"><code>subscribe</code></a> to it beforehand!</p>
 
                     </main>
 

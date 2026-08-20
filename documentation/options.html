@@ -208,6 +208,16 @@
 <li><a href="#visual_bell">visual_bell</a></li>
 <li><a href="#focus_follows_mouse">focus_follows_mouse</a></li>
 <li><a href="#mouse_click_through">mouse_click_through</a></li>
+<li><a href="#pane_frame_style">pane_frame_style</a></li>
+<li><a href="#stacked_pane_list">stacked_pane_list</a></li>
+<li><a href="#support_kitty_graphics_protocol">support_kitty_graphics_protocol</a></li>
+<li><a href="#mouse_scroll_resize">mouse_scroll_resize</a></li>
+<li><a href="#mouse_hover_tips">mouse_hover_tips</a></li>
+<li><a href="#osc133_command_selection">osc133_command_selection</a></li>
+<li><a href="#word_separators">word_separators</a></li>
+<li><a href="#host_notification_protocol">host_notification_protocol</a></li>
+<li><a href="#nested_session_handling">nested_session_handling</a></li>
+<li><a href="#dangerously_enable_paste_buffer_read">dangerously_enable_paste_buffer_read</a></li>
 </ul>
 <hr />
 <h3 id="on_force_close"><a class="header" href="#on_force_close">on_force_close</a></h3>
@@ -235,7 +245,7 @@ eg. when terminal window with an active zellij session is closed</p>
 <pre><code class="language-javascript">default_shell "fish"
 </code></pre>
 <h3 id="pane_frames"><a class="header" href="#pane_frames">pane_frames</a></h3>
-<p>Toggle between having pane frames around the panes</p>
+<p>Toggle between having pane frames around the panes. The style of these frames is controlled by <a href="#pane_frame_style"><code>pane_frame_style</code></a> - since <code>0.45.0</code> the default style is a single title line above each pane rather than a full border.</p>
 <p>Options:</p>
 <ul>
 <li>true (default)</li>
@@ -323,6 +333,7 @@ or should each user have their own cursor (false)
 Default: false</p>
 <pre><code class="language-javascript">mirror_session true
 </code></pre>
+<p>Note: since <code>0.45.0</code>, each tab is sized according to the viewports of only the clients currently viewing it. Clients focused on different tabs therefore no longer constrain each other, while clients viewing the same tab converge on a common size. Tabs that nobody is viewing keep their last dimensions. This behavior is not configurable.</p>
 <h3 id="layout_dir"><a class="header" href="#layout_dir">layout_dir</a></h3>
 <p>The folder in which Zellij will look for layouts</p>
 <pre><code class="language-javascript">layout_dir "/path/to/my/layout_dir"
@@ -573,6 +584,102 @@ Options:</p>
 <li>false (default)</li>
 </ul>
 <pre><code class="language-javascript">mouse_click_through true
+</code></pre>
+<h3 id="pane_frame_style"><a class="header" href="#pane_frame_style">pane_frame_style</a></h3>
+<p>The style of the pane frames when <code>pane_frames</code> is enabled.</p>
+<p>Options:</p>
+<ul>
+<li>"titles" (default) - a single title line above each pane</li>
+<li>"full" - a full border around each pane (the pre-<code>0.45.0</code> look)</li>
+<li>"none" - no frames at all (identical to <code>pane_frames false</code>)</li>
+</ul>
+<p>Setting <code>pane_frames false</code> forces the style to <code>none</code> regardless of this option.</p>
+<p>The style can also be changed at runtime with the <code>SetPaneFrameStyle</code> <a href="./keybindings-possible-actions.html#setpaneframestyle">action</a> or with <code>zellij action set-pane-frame-style</code>.</p>
+<pre><code class="language-javascript">pane_frame_style "titles"
+</code></pre>
+<h3 id="stacked_pane_list"><a class="header" href="#stacked_pane_list">stacked_pane_list</a></h3>
+<p>Whether stacked panes are rendered as a list of one-line titles with the expanded pane pinned to the bottom of the stack. When false, the expanded pane is rendered in place inside the stack (the pre-<code>0.45.0</code> behavior).</p>
+<p>Options:</p>
+<ul>
+<li>true (default)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">stacked_pane_list false
+</code></pre>
+<h3 id="support_kitty_graphics_protocol"><a class="header" href="#support_kitty_graphics_protocol">support_kitty_graphics_protocol</a></h3>
+<p>Enable support for the Kitty graphics protocol, allowing programs running in panes to display images. Defaults to true if the terminal supports it (queried when Zellij starts). Changing this option requires restarting Zellij.</p>
+<p>Options:</p>
+<ul>
+<li>true (default if terminal supports it)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">support_kitty_graphics_protocol true
+</code></pre>
+<h3 id="mouse_scroll_resize"><a class="header" href="#mouse_scroll_resize">mouse_scroll_resize</a></h3>
+<p>Whether holding Ctrl and scrolling the mouse wheel resizes the focused pane. When false, such scroll events are passed through to the pane instead.</p>
+<p>Options:</p>
+<ul>
+<li>true (default)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">mouse_scroll_resize false
+</code></pre>
+<h3 id="mouse_hover_tips"><a class="header" href="#mouse_hover_tips">mouse_hover_tips</a></h3>
+<p>Whether to show contextual help tips when hovering with the mouse (eg. resize help near pane borders, pane group shortcuts). This is distinct from <code>mouse_hover_effects</code>, which controls hover <em>visual</em> effects such as frame highlighting.</p>
+<p>Options:</p>
+<ul>
+<li>true (default)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">mouse_hover_tips false
+</code></pre>
+<h3 id="osc133_command_selection"><a class="header" href="#osc133_command_selection">osc133_command_selection</a></h3>
+<p>Whether triple-clicking inside output marked with <a href="./shell-integration.html">OSC 133 shell integration</a> sequences selects the whole command and its output rather than the logical line under the cursor.</p>
+<p>Options:</p>
+<ul>
+<li>true (default)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">osc133_command_selection false
+</code></pre>
+<h3 id="word_separators"><a class="header" href="#word_separators">word_separators</a></h3>
+<p>The characters that terminate a word when double-clicking to select it. Whitespace always separates words and does not need to be included here.</p>
+<p>Default: <code>"[]{}&lt;&gt;()"</code></p>
+<pre><code class="language-javascript">word_separators "[]{}&lt;&gt;()/\\"
+</code></pre>
+<h3 id="host_notification_protocol"><a class="header" href="#host_notification_protocol">host_notification_protocol</a></h3>
+<p>The protocol used to forward desktop notifications emitted by panes (through OSC 9, OSC 99 or OSC 777) to the host terminal. See <a href="./compatibility.html#desktop-notifications">desktop notifications</a>.</p>
+<p>Options:</p>
+<ul>
+<li>"auto" (default) - OSC 99 for terminals that support it (eg. kitty), OSC 9 otherwise</li>
+<li>"osc9" - always use OSC 9</li>
+<li>"osc99" - always use OSC 99</li>
+<li>"bell" - emit a terminal bell instead of a notification</li>
+<li>"off" - do not forward notifications to the host terminal</li>
+</ul>
+<pre><code class="language-javascript">host_notification_protocol "osc9"
+</code></pre>
+<h3 id="nested_session_handling"><a class="header" href="#nested_session_handling">nested_session_handling</a></h3>
+<p>What Zellij should do when a pane contains another (nested) Zellij session. See <a href="./nested-sessions.html">nested sessions</a>.</p>
+<p>Options:</p>
+<ul>
+<li>"ask" (default) - show a prompt when focusing the pane, offering to zoom into the nested session or to take control of it</li>
+<li>"fullscreen" - always zoom into the nested session when focusing its pane</li>
+<li>"descend" - always route input to the nested session when focusing its pane</li>
+<li>"never" - do nothing automatically</li>
+</ul>
+<pre><code class="language-javascript">nested_session_handling "descend"
+</code></pre>
+<h3 id="dangerously_enable_paste_buffer_read"><a class="header" href="#dangerously_enable_paste_buffer_read">dangerously_enable_paste_buffer_read</a></h3>
+<p>Whether programs running inside panes are allowed to <strong>read</strong> the system clipboard through the OSC 52 escape sequence. When false, such requests receive an empty reply.</p>
+<p><strong>Warning</strong>: when this is enabled, any program running in any pane - including one running on a remote machine over SSH - can read the contents of the clipboard at any time, without prompting.</p>
+<p>Copying to the clipboard (OSC 52 write) is not affected by this option and is always available.</p>
+<p>Options:</p>
+<ul>
+<li>true</li>
+<li>false (default)</li>
+</ul>
+<pre><code class="language-javascript">dangerously_enable_paste_buffer_read true
 </code></pre>
 
                     </main>

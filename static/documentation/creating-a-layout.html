@@ -371,6 +371,7 @@
 <h4 id="stacked"><a class="header" href="#stacked">stacked</a></h4>
 <p>If <code>true</code>, this pane property dictates that the children panes of this pane will be arranged in a stack.</p>
 <p>In a stack of panes, all panes except one have just one line - showing their title (and their scroll and exit code when relevant). The focused pane among these is displayed normally as any other pane.</p>
+<p>Since <code>0.45.0</code>, a stack is rendered as a list of these one-line titles with the expanded pane pinned to the bottom of the stack, rather than expanded in place between the titles. The previous rendering can be restored by setting the <a href="./options.html#stacked_pane_list"><code>stacked_pane_list</code></a> option to <code>false</code>.</p>
 <p>eg.</p>
 <pre><code class="language-javascript">layout {
     pane stacked=true {
@@ -416,6 +417,7 @@
 <h3 id="tabs"><a class="header" href="#tabs">Tabs</a></h3>
 <p><code>tab</code> nodes can optionally be used to start a layout with several tabs.</p>
 <p><strong>Note</strong>: all tab arguments should be specified on its title line. The child-braces are reserved for its child panes.</p>
+<p><strong>Note</strong>: properties that belong to a tab (<code>name</code>, <code>split_direction</code> and <code>hide_floating_panes</code>) cannot be placed on the <code>layout</code> node itself when the layout also contains explicit <code>tab</code> nodes - they must be placed on each <code>tab</code> node. Doing otherwise is an error, and Zellij will point out which property should be moved where.</p>
 <p>eg.</p>
 <pre><code class="language-javascript">layout {
     tab // a tab with a single pane

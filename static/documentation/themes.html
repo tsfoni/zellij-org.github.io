@@ -155,6 +155,21 @@
                         <h1 id="themes"><a class="header" href="#themes">Themes</a></h1>
 <h2 id="using-the-built-in-themes"><a class="header" href="#using-the-built-in-themes">Using the built-in themes</a></h2>
 <p>The built-in themes in Zellij can be used by setting the <code>theme [THEME_NAME]</code> in the <a href="./configuration.html">configuration file</a>. Take a look at the <a href="./theme-list.html">list of themes</a> to see what's possible.</p>
+<h2 id="automatic-dark-and-light-theme-switching"><a class="header" href="#automatic-dark-and-light-theme-switching">Automatic dark and light theme switching</a></h2>
+<p>Instead of (or in addition to) the static <code>theme</code> directive, two themes can be configured - one for when the host terminal is in dark mode, and one for when it is in light mode:</p>
+<pre><code class="language-javascript">theme_dark "catppuccin-mocha"
+theme_light "catppuccin-latte"
+</code></pre>
+<p><strong>Both</strong> <a href="./options.html#theme_dark"><code>theme_dark</code></a> and <a href="./options.html#theme_light"><code>theme_light</code></a> must be set for automatic switching to happen. If only one of them is set, the static <code>theme</code> remains authoritative.</p>
+<p>Zellij detects the color scheme of the terminal it is attached to (through <code>DSR 997</code> replies and <code>CSI 2031</code> change notifications) and switches themes when it changes. Terminals that do not report their color scheme will not trigger switching.</p>
+<p>The theme can also be switched manually, with these actions (bindable in the <a href="./keybindings.html"><code>keybinds</code></a> block) and their CLI equivalents:</p>
+<div class="table-wrapper"><table><thead><tr><th>Action</th><th>CLI</th></tr></thead><tbody>
+<tr><td><a href="./keybindings-possible-actions.html#setdarktheme"><code>SetDarkTheme</code></a></td><td><code>zellij action set-dark-theme</code></td></tr>
+<tr><td><a href="./keybindings-possible-actions.html#setlighttheme"><code>SetLightTheme</code></a></td><td><code>zellij action set-light-theme</code></td></tr>
+<tr><td><a href="./keybindings-possible-actions.html#toggletheme"><code>ToggleTheme</code></a></td><td><code>zellij action toggle-theme</code></td></tr>
+</tbody></table>
+</div>
+<p>Programs running inside panes can subscribe to color scheme changes themselves with <code>CSI ? 2031 h</code> and will receive <code>CSI ?997;1 n</code> (dark) or <code>CSI ?997;2 n</code> (light) whenever the mode changes.</p>
 <h2 id="theme-definition-specification"><a class="header" href="#theme-definition-specification">Theme Definition Specification</a></h2>
 <p>Themes in Zellij are defined according to UI components. These components are used in the various plugins that make up the Zellij interface, and can also be used dynamically in user plugins.</p>
 <p><img src="/img/theme-spec.png" alt="theme definition spec diagram" /></p>
@@ -233,7 +248,7 @@
 <pre><code class="language-javascript">theme "your_theme_name"
 </code></pre>
 <p>directive above or below it. This way, Zellij will pick up on any changes to the theme in real time and you will not have to restart the session to see your changes.</p>
-<p>Otherwise, it's possible to define themes in separate files under the <code>themes</code> folder located in <code>CONFIG_DIR/themes</code>. You can find the exact location of this folder with <code>zellij setup --check</code>.</p>
+<p>Otherwise, it's possible to define themes in separate files under the <code>themes</code> folder located in <code>CONFIG_DIR/themes</code>. You can find the exact location of this folder with <code>zellij setup --check</code>. Changes to files in this folder are also picked up live, without restarting the session.</p>
 <p>Themes can also be loaded from the command line when starting Zellij:</p>
 <pre><code>zellij options --theme [NAME]
 </code></pre>

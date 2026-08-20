@@ -194,7 +194,6 @@
 <li><a href="#interceptedkeypress">InterceptedKeyPress</a></li>
 <li><a href="#useraction">UserAction</a></li>
 <li><a href="#panerenderreport">PaneRenderReport</a></li>
-<li><a href="#panerenderreportwithansi">PaneRenderReportWithAnsi</a></li>
 <li><a href="#actioncomplete">ActionComplete</a></li>
 <li><a href="#cwdchanged">CwdChanged</a></li>
 <li><a href="#availablelayoutinfo">AvailableLayoutInfo</a></li>
@@ -202,6 +201,10 @@
 <li><a href="#highlightclicked">HighlightClicked</a></li>
 <li><a href="#commandchanged">CommandChanged</a></li>
 <li><a href="#hostterminalthemechanged">HostTerminalThemeChanged</a></li>
+<li><a href="#initialkeybinds">InitialKeybinds</a></li>
+<li><a href="#softkeyboardvisibilitychanged">SoftKeyboardVisibilityChanged</a></li>
+<li><a href="#hinttext">HintText</a></li>
+<li><a href="#activepanescroll">ActivePaneScroll</a></li>
 </ul>
 <hr />
 <h2 id="modeupdate"><a class="header" href="#modeupdate"><code>ModeUpdate</code></a></h2>
@@ -212,6 +215,7 @@
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
 <p><strong>Payload:</strong> <a href="./plugin-api-types.html#modeinfo"><code>ModeInfo</code></a></p>
 <p>Fired when the input mode or relevant session metadata changes. Provides information about the current input mode (e.g., <code>Normal</code>, <code>Locked</code>, <code>Pane</code>, <code>Tab</code>), bound keys, the active theme colors, and the session name.</p>
+<p><strong>Note:</strong> plugins that subscribe to <a href="#initialkeybinds"><code>InitialKeybinds</code></a> receive the keybindings through that event instead, and their <code>ModeUpdate</code> events arrive with an empty <code>keybinds</code> field from then on - this keeps the frequently fired <code>ModeUpdate</code> lightweight.</p>
 <p><strong>Example:</strong></p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -871,15 +875,6 @@ fn update(&amp;mut self, event: Event) -&gt; bool {
 <p><strong>Payload:</strong> <code>HashMap&lt;</code><a href="./plugin-api-types.html#paneid"><code>PaneId</code></a><code>, </code><a href="./plugin-api-types.html#panecontents"><code>PaneContents</code></a><code>&gt;</code></p>
 <p>Provides the rendered content of subscribed panes with ANSI escape codes stripped. This event is fired periodically for panes the plugin has subscribed to observe.</p>
 <hr />
-<h2 id="panerenderreportwithansi"><a class="header" href="#panerenderreportwithansi"><code>PaneRenderReportWithAnsi</code></a></h2>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>Event::PaneRenderReportWithAnsi(HashMap&lt;PaneId, PaneContents&gt;)
-<span class="boring">}</span></code></pre></pre>
-<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadPaneContents</code></a></p>
-<p><strong>Payload:</strong> <code>HashMap&lt;PaneId, PaneContents&gt;</code></p>
-<p>Same as <code>PaneRenderReport</code>, but with ANSI escape codes preserved in the content. Useful when the plugin needs to process or display the terminal output with formatting intact.</p>
-<hr />
 <h2 id="actioncomplete"><a class="header" href="#actioncomplete"><code>ActionComplete</code></a></h2>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -1010,6 +1005,7 @@ fn update(&amp;mut self, event: Event) -&gt; bool {
 </span><span class="boring">fn main() {
 </span>Event::CommandChanged(PaneId, Vec&lt;String&gt;, bool, Vec&lt;ClientId&gt;)
 <span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
 <p><strong>Payload:</strong></p>
 <ul>
 <li><a href="./plugin-api-types.html#paneid"><code>PaneId</code></a> - the pane whose running command changed</li>
@@ -1017,7 +1013,7 @@ fn update(&amp;mut self, event: Event) -&gt; bool {
 <li><code>bool</code> - <code>true</code> if the new command is the foreground process in the pane</li>
 <li><code>Vec&lt;ClientId&gt;</code> - client IDs that have this pane focused</li>
 </ul>
-<p>Fired when the foreground command running inside a terminal pane changes (for example when a user runs <code>vim</code> from a shell, or when that program exits and the shell becomes foreground again). No permission is required.</p>
+<p>Fired when the foreground command running inside a terminal pane changes (for example when a user runs <code>vim</code> from a shell, or when that program exits and the shell becomes foreground again).</p>
 <p><strong>Example:</strong></p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -1057,6 +1053,84 @@ fn update(&amp;mut self, event: Event) -&gt; bool {
     }
 }
 <span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="initialkeybinds"><a class="header" href="#initialkeybinds"><code>InitialKeybinds</code></a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>Event::InitialKeybinds(KeybindsVec)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Payload:</strong></p>
+<ul>
+<li><code>KeybindsVec</code> - <code>Vec&lt;(</code><a href="./plugin-api-types.html#inputmode"><code>InputMode</code></a><code>, Vec&lt;(</code><a href="./plugin-api-types.html#keywithmodifier"><code>KeyWithModifier</code></a><code>, Vec&lt;</code><a href="./plugin-api-types.html#action"><code>Action</code></a><code>&gt;)&gt;)&gt;</code> - the keybindings of all input modes</li>
+</ul>
+<p>Fired once when subscribing to this event, and again after every keybinding reconfiguration (eg. through <a href="./plugin-api-commands.html#rebind_keys"><code>rebind_keys</code></a> or a configuration reload). No permission is required.</p>
+<p>Plugins that need the keybindings should prefer this event over reading them from <a href="#modeupdate"><code>ModeUpdate</code></a>: once subscribed, <code>ModeUpdate</code> events arrive with an empty <code>keybinds</code> field, which makes them considerably cheaper.</p>
+<p><strong>Example:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn update(&amp;mut self, event: Event) -&gt; bool {
+    match event {
+        Event::InitialKeybinds(keybinds) =&gt; {
+            self.keybinds = keybinds;
+            true
+        },
+        _ =&gt; false,
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="softkeyboardvisibilitychanged"><a class="header" href="#softkeyboardvisibilitychanged"><code>SoftKeyboardVisibilityChanged</code></a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>Event::SoftKeyboardVisibilityChanged(bool)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
+<p><strong>Payload:</strong></p>
+<ul>
+<li><code>bool</code> - <code>true</code> if the on-screen keyboard is now visible</li>
+</ul>
+<p>Fired when the on-screen (soft) keyboard of the client displaying this plugin is shown or hidden. Only relevant for clients connected through the <a href="./web-client.html">web client</a> on a mobile device. The keyboard can also be shown or hidden by the plugin itself with <a href="./plugin-api-commands.html#set_soft_keyboard"><code>set_soft_keyboard</code></a>.</p>
+<hr />
+<h2 id="hinttext"><a class="header" href="#hinttext"><code>HintText</code></a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>Event::HintText(BTreeMap&lt;usize, StyledText&gt;)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
+<p><strong>Payload:</strong></p>
+<ul>
+<li><code>BTreeMap&lt;usize, </code><a href="./plugin-api-types.html#styledtext"><code>StyledText</code></a><code>&gt;</code> - hint text variants keyed by the display width they are intended for</li>
+</ul>
+<p>Provides the contextual hint text Zellij would like to display (eg. what the user can do with the currently focused pane or stack). Several variants of the same hint are provided, each fitting a different width - the plugin should render the widest variant that fits in the space it has.</p>
+<p><strong>Example:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn update(&amp;mut self, event: Event) -&gt; bool {
+    match event {
+        Event::HintText(variants) =&gt; {
+            self.hint = variants
+                .into_iter()
+                .filter(|(width, _)| *width &lt;= self.available_width)
+                .last()
+                .map(|(_, text)| text);
+            true
+        },
+        _ =&gt; false,
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="activepanescroll"><a class="header" href="#activepanescroll"><code>ActivePaneScroll</code></a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>Event::ActivePaneScroll(Option&lt;(usize, usize)&gt;)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
+<p><strong>Payload:</strong></p>
+<ul>
+<li><code>Option&lt;(usize, usize)&gt;</code> - the scroll position and the total length of the scrollback of the displayed pane, or <code>None</code> if this information is unavailable</li>
+</ul>
+<p>Fired when the scroll position of the single displayed pane changes. This is only sent when the session displays a single pane with a title (ie. when the <a href="./options.html#pane_frame_style"><code>pane_frame_style</code></a> is <code>titles</code> and only one pane is displayed), which is the case where a plugin (eg. a tab-bar) may want to render a scrollbar or a scroll indicator for it.</p>
 
                     </main>
 

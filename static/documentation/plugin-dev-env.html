@@ -172,6 +172,8 @@ layout {
 <p><em>Please check the example repository for the full version</em></p>
 <p>This layout is intended to be loaded into Zellij (either in a running session or in a new session), to load the user's default <code>$EDITOR</code> to the <code>main.rs</code> and <code>Cargo.toml</code> files, show the rendered plugin in a separate pane as well as the compilation and plugin hot-reload logs.</p>
 <p>Zellij plugins can of course be developed out of the terminal as well.</p>
+<h2 id="building-and-testing-on-native-targets"><a class="header" href="#building-and-testing-on-native-targets">Building and testing on native targets</a></h2>
+<p>Since <code>0.45.0</code>, the host functions the plugin API is built on are compiled only for <code>wasm32</code> targets, with a no-op stub used elsewhere. Plugin crates can therefore be compiled, unit-tested and type-checked on the native target (eg. with <code>cargo test</code>) without a WebAssembly toolchain - keeping in mind that API calls do nothing there.</p>
 
                     </main>
 

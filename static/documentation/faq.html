@@ -157,7 +157,7 @@
 <p>The best and easiest way is to choose the "Unlock-First (non-colliding)" <a href="./keybinding-presets.html">keybinding preset</a>. If that is not sufficient for your use case, you can also <a href="./changing-modifiers.html">choose different modifiers</a>.</p>
 <h2 id="the-ui-takes-up-too-much-space-what-can-i-do-about-it"><a class="header" href="#the-ui-takes-up-too-much-space-what-can-i-do-about-it">The UI takes up too much space, what can I do about it?</a></h2>
 <p>You can load the <code>compact</code> layout with <code>zellij --layout compact</code>.</p>
-<p>Additionally, you can disable pane frames either at runtime with <code>Ctrl + &lt;p&gt; + &lt;z&gt;</code> or through the <a href="./configuration.html">config</a> with <code>pane_frames: false</code>.</p>
+<p>Additionally, you can disable pane frames either at runtime with <code>Ctrl + &lt;p&gt; + &lt;z&gt;</code> or through the <a href="./configuration.html">config</a> with <code>pane_frames false</code>. A middle ground is <code>pane_frame_style "titles"</code> (the default since <code>0.45.0</code>), which renders a single title line above each pane rather than a full frame around it.</p>
 <h3 id="followup-question-can-i-use-the-compact-layout-but-still-see-the-keybinding-hints-when-necessary"><a class="header" href="#followup-question-can-i-use-the-compact-layout-but-still-see-the-keybinding-hints-when-necessary">Followup Question: can I use the <code>compact</code> layout but still see the keybinding hints when necessary?</a></h3>
 <p>Yes! You can set up a keybinding tooltip toggle for the compact-bar. Choose a key (for example <code>F1</code>) and set it up in the <a href="./configuration.html">config</a> (and then restart):</p>
 <pre><code class="language-javascript">plugins {
@@ -183,11 +183,11 @@
 <li><a href="https://github.com/zellij-org/zellij/issues/2051#issuecomment-1461519892">Alacritty</a></li>
 </ol>
 <h2 id="copy--paste-isnt-working-how-can-i-fix-this"><a class="header" href="#copy--paste-isnt-working-how-can-i-fix-this">Copy / Paste isn't working, how can I fix this?</a></h2>
-<p>Some terminals don't support the the OSC 52 signal, which is the method Zellij uses by default to copy text to the clipboard. To get around this, you can either switch to a supported terminal (eg. Alacritty or xterm) or configure Zellij to use an external utility when copy pasting (eg. xclip, wl-copy or pbcopy).</p>
+<p>Some terminals don't support the OSC 52 signal, which is the method Zellij uses by default to copy text to the clipboard. To get around this, you can either switch to a supported terminal (eg. Alacritty or xterm) or configure Zellij to use an external utility when copy pasting (eg. xclip, wl-copy or pbcopy).</p>
 <p>To do the latter, add one of the following to your <a href="./configuration.html">Zellij Config</a>:</p>
-<pre><code>copy_command: "xclip -selection clipboard" # x11
-copy_command: "wl-copy"                    # wayland
-copy_command: "pbcopy"                     # osx
+<pre><code class="language-javascript">copy_command "xclip -selection clipboard" // x11
+copy_command "wl-copy"                    // wayland
+copy_command "pbcopy"                     // osx
 </code></pre>
 <p>Note that the only method that works when connecting to a remote Zellij session (eg. through SSH) is OSC 52. If you require this functionality, please consider using a terminal that supports it.</p>
 <h2 id="how-can-i-use-floating-panes"><a class="header" href="#how-can-i-use-floating-panes">How can I use floating panes?</a></h2>
@@ -214,7 +214,10 @@ copy_command: "pbcopy"                     # osx
 <h2 id="editing-the-pane-scrollbuffer-with-ctrl--s--e-doesnt-work-whats-wrong"><a class="header" href="#editing-the-pane-scrollbuffer-with-ctrl--s--e-doesnt-work-whats-wrong">Editing the pane scrollbuffer with <code>ctrl + &lt;s&gt; + &lt;e&gt;</code> doesn't work, what's wrong?</a></h2>
 <p>By default, Zellij looks for an editor defined in the <code>EDITOR</code> or <code>VISUAL</code> environment variables (in this order).
 Make sure one is set (eg. <code>export EDITOR=/usr/bin/vim</code>) before Zellij starts.
-Alternatively, you can set one in the Zellij <a href="./configuration.html">config</a> using <code>scrollback-editor</code>.</p>
+Alternatively, you can set one in the Zellij <a href="./configuration.html">config</a> using <code>scrollback_editor</code>.</p>
+<h2 id="programs-in-my-panes-cannot-read-the-clipboard-why"><a class="header" href="#programs-in-my-panes-cannot-read-the-clipboard-why">Programs in my panes cannot read the clipboard, why?</a></h2>
+<p>Since <code>0.45.0</code>, Zellij replies with an empty clipboard to programs that attempt to <em>read</em> the clipboard through OSC 52. Copying (OSC 52 write) is unaffected.</p>
+<p>Clipboard reading can be enabled with the <a href="./options.html#dangerously_enable_paste_buffer_read"><code>dangerously_enable_paste_buffer_read</code></a> option, but note that once enabled, <strong>any</strong> program in <strong>any</strong> pane (including one connected over SSH) can read the system clipboard without prompting.</p>
 
                     </main>
 

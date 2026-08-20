@@ -190,10 +190,13 @@
 -n, --name &lt;NAME&gt;                 Name of the new pane
     --near-current-pane           if set, will open the pane near the current one rather than
                                   following the user's focus
+    --no-focus                    Open the pane without changing the focus of any client
     --pinned &lt;PINNED&gt;             Whether to pin a floating pane so that it is always on top
 -s, --start-suspended             Start the command suspended, only running after you first
                                   presses ENTER
     --stacked
+    --tab-id &lt;TAB_ID&gt;             Open the pane in the tab with this id (conflicts with
+                                  --in-place and --near-current-pane)
     --width &lt;WIDTH&gt;               The width if the pane is floating as a bare integer (eg. 1) or
                                   percent (eg. 10%)
 -x, --x &lt;X&gt;                       The x coordinates if the pane is floating as a bare integer
@@ -202,6 +205,8 @@
                                   (eg. 1) or percent (eg. 10%)
 </code></pre>
 <p><strong>Note</strong>: to shorten this command to a more friendly length, see <code>Completions</code> under: <a href="./controlling-zellij-through-cli.html#completions">CLI</a></p>
+<p><strong>About <code>--no-focus</code></strong>: the pane is opened without changing the focus of any connected client. Its placement is relative to the pane the command was issued from rather than to the focused pane. This is useful for scripts that open panes in the background.</p>
+<p><strong>About <code>--tab-id</code></strong>: the pane is opened in the tab with the given (numeric) id rather than in the focused tab. Tab ids can be obtained with <code>zellij action list-tabs</code> or <code>zellij action query-tab-names</code>.</p>
 <p>This new pane will not immediately close when the command exits. Instead, it will show its exit status on the pane frame and allow users to press <code>&lt;ENTER&gt;</code> to re-run the command inside the same pane, or <code>&lt;Ctrl-c&gt;</code> to close the pane.</p>
 <p>We feel this is a new and powerful way to interact with the command line.</p>
 <p><img src="img/command-pane-screenshot.png" alt="command-pane" /></p>
@@ -230,7 +235,10 @@ $ zellij edit ./main.rs --line-number 10 # open main.rs pointed at line number 1
 -l, --line-number &lt;LINE_NUMBER&gt;    Open the file in the specified line number
     --near-current-pane            if set, will open the pane near the current one rather than
                                    following the user's focus
+    --no-focus                     Open the pane without changing the focus of any client
     --pinned &lt;PINNED&gt;              Whether to pin a floating pane so that it is always on top
+    --tab-id &lt;TAB_ID&gt;              Open the pane in the tab with this id (conflicts with
+                                   --in-place and --near-current-pane)
     --width &lt;WIDTH&gt;                The width if the pane is floating as a bare integer (eg. 1)
                                    or percent (eg. 10%)
 -x, --x &lt;X&gt;                        The x coordinates if the pane is floating as a bare integer

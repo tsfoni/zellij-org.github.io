@@ -304,6 +304,20 @@ show_cursor(None);
 </tbody></table>
 </div>
 <hr />
+<h3 id="set_soft_keyboard"><a class="header" href="#set_soft_keyboard"><code>set_soft_keyboard</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn set_soft_keyboard(on: bool)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Show or hide the on-screen (soft) keyboard of the client that is displaying this plugin. This is only relevant for clients connected through the <a href="./web-client.html">web client</a> on a mobile device - other clients ignore it.</p>
+<p>Changes to the visibility of the soft keyboard (including ones the user makes) are reported through the <a href="./plugin-api-events.html#softkeyboardvisibilitychanged"><code>SoftKeyboardVisibilityChanged</code></a> event.</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>on</code></td><td><code>bool</code></td><td><code>true</code> to show the soft keyboard, <code>false</code> to hide it</td></tr>
+</tbody></table>
+</div>
+<hr />
 <h2 id="query--information-retrieval"><a class="header" href="#query--information-retrieval">Query / Information Retrieval</a></h2>
 <hr />
 <h3 id="get_plugin_ids"><a class="header" href="#get_plugin_ids"><code>get_plugin_ids</code></a></h3>
@@ -639,41 +653,53 @@ switch_session(None);
 <h3 id="delete_dead_session"><a class="header" href="#delete_dead_session"><code>delete_dead_session</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>fn delete_dead_session(name: &amp;str)
+</span>fn delete_dead_session(name: &amp;str) -&gt; Result&lt;(), String&gt;
 <span class="boring">}</span></code></pre></pre>
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
-<p>Permanently delete a resurrectable (dead) session with the given name.</p>
+<p>Permanently delete a resurrectable (dead) session with the given name. Blocks until the deletion has been acknowledged, so that subsequent session queries reflect it.</p>
 <p><strong>Parameters:</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>name</code></td><td><code>&amp;str</code></td><td>Name of the dead session to delete</td></tr>
 </tbody></table>
 </div>
+<p><strong>Returns:</strong> <code>Result&lt;(), String&gt;</code> - an error message if the session could not be deleted</p>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to return <code>()</code> and was fire-and-forget. Plugins that ignore the result need to handle it (eg. with <code>let _ = ...</code>) in order to compile.</p>
+</blockquote>
 <hr />
 <h3 id="delete_all_dead_sessions"><a class="header" href="#delete_all_dead_sessions"><code>delete_all_dead_sessions</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>fn delete_all_dead_sessions()
+</span>fn delete_all_dead_sessions() -&gt; Result&lt;(), String&gt;
 <span class="boring">}</span></code></pre></pre>
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
-<p>Permanently delete all resurrectable (dead) sessions on this machine.</p>
+<p>Permanently delete all resurrectable (dead) sessions on this machine. Blocks until the deletion has been acknowledged.</p>
+<p><strong>Returns:</strong> <code>Result&lt;(), String&gt;</code> - an error message if the sessions could not be deleted</p>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to return <code>()</code> and was fire-and-forget.</p>
+</blockquote>
 <hr />
 <h3 id="kill_sessions"><a class="header" href="#kill_sessions"><code>kill_sessions</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>fn kill_sessions&lt;S: AsRef&lt;str&gt;&gt;(session_names: &amp;[S])
+</span>fn kill_sessions&lt;S: AsRef&lt;str&gt;&gt;(session_names: &amp;[S]) -&gt; Result&lt;(), String&gt;
 <span class="boring">}</span></code></pre></pre>
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
-<p>Kill one or more sessions by name.</p>
+<p>Kill one or more sessions by name. Blocks until the sessions have been killed.</p>
 <p><strong>Parameters:</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>session_names</code></td><td><code>&amp;[S]</code></td><td>Slice of session names to kill</td></tr>
 </tbody></table>
 </div>
+<p><strong>Returns:</strong> <code>Result&lt;(), String&gt;</code> - an error message if the sessions could not be killed</p>
 <p><strong>Example:</strong></p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>kill_sessions(&amp;["old-session", "temp-session"]);
+</span>kill_sessions(&amp;["old-session", "temp-session"])?;
 <span class="boring">}</span></code></pre></pre>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to return <code>()</code> and was fire-and-forget.</p>
+</blockquote>
 <hr />
 <h3 id="detach"><a class="header" href="#detach"><code>detach</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -1223,8 +1249,11 @@ layout {
     context: BTreeMap&lt;String, String&gt;,
 ) -&gt; (Option&lt;usize&gt;, Option&lt;PaneId&gt;)
 <span class="boring">}</span></code></pre></pre>
-<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>RunCommands</code></a></p>
 <p>Open a new tab with a command pane running the specified command.</p>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to require <code>ChangeApplicationState</code>.</p>
+</blockquote>
 <p><strong>Parameters:</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>command_to_run</code></td><td><a href="./plugin-api-types.html#commandtorun"><code>CommandToRun</code></a></td><td>Command to execute</td></tr>
@@ -1283,8 +1312,11 @@ layout {
     context: BTreeMap&lt;String, String&gt;,
 ) -&gt; (Option&lt;usize&gt;, Option&lt;PaneId&gt;)
 <span class="boring">}</span></code></pre></pre>
-<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>OpenFiles</code></a></p>
 <p>Open a new tab with an editor pane for the specified file.</p>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to require <code>ChangeApplicationState</code>.</p>
+</blockquote>
 <p><strong>Parameters:</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>file_to_open</code></td><td><a href="./plugin-api-types.html#filetoopen"><code>FileToOpen</code></a></td><td>File to open</td></tr>
@@ -1292,6 +1324,43 @@ layout {
 </tbody></table>
 </div>
 <p><strong>Returns:</strong> <code>(Option&lt;usize&gt;, Option&lt;PaneId&gt;)</code> - the tab ID and pane ID</p>
+<hr />
+<h3 id="new_tab_unfocused"><a class="header" href="#new_tab_unfocused"><code>new_tab_unfocused</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn new_tab_unfocused(name: Option&lt;String&gt;, cwd: Option&lt;PathBuf&gt;) -&gt; Option&lt;usize&gt;
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Open a new tab in the background, without changing the focus of any client. To open a new tab and focus it, see <a href="#new_tab"><code>new_tab</code></a>.</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>Option&lt;String&gt;</code></td><td>Optional name for the new tab</td></tr>
+<tr><td><code>cwd</code></td><td><code>Option&lt;PathBuf&gt;</code></td><td>Optional working directory for the new tab</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns:</strong> <code>Option&lt;usize&gt;</code> - the id of the created tab, if successful</p>
+<hr />
+<h3 id="new_tiled_pane_in_tab"><a class="header" href="#new_tiled_pane_in_tab"><code>new_tiled_pane_in_tab</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn new_tiled_pane_in_tab(tab_position: usize) -&gt; Option&lt;PaneId&gt;
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>OpenTerminalsOrPlugins</code></a></p>
+<p>Open a new tiled pane running the default shell in the tab at the given position.</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tab_position</code></td><td><code>usize</code></td><td>The position of the tab in which to open the pane</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns:</strong> <code>Option&lt;</code><a href="./plugin-api-types.html#paneid"><code>PaneId</code></a><code>&gt;</code> - the id of the created pane, if successful</p>
+<hr />
+<h3 id="new_pane"><a class="header" href="#new_pane"><code>new_pane</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn new_pane()
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Open a new tiled pane running the default shell in the focused tab.</p>
 <hr />
 <h2 id="tab-navigation--management"><a class="header" href="#tab-navigation--management">Tab Navigation &amp; Management</a></h2>
 <hr />
@@ -1586,6 +1655,22 @@ layout {
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
 <p>Move focus to the previous pane in chronological order.</p>
 <hr />
+<h3 id="focus_last_pane"><a class="header" href="#focus_last_pane"><code>focus_last_pane</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn focus_last_pane()
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> None</p>
+<p>Move focus back to the pane that was focused before the currently focused one. Takes floating panes into account, and swaps the pane in place when the focused pane is fullscreen.</p>
+<hr />
+<h3 id="focus_host_session"><a class="header" href="#focus_host_session"><code>focus_host_session</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn focus_host_session()
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>When this session is running inside another Zellij session (see <a href="./nested-sessions.html">nested sessions</a>), move focus up to the host (outer) session. Has no effect when the session is not nested.</p>
+<hr />
 <h3 id="move_focus"><a class="header" href="#move_focus"><code>move_focus</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -1696,6 +1781,19 @@ layout {
 </tbody></table>
 </div>
 <p><strong>Returns:</strong> <code>Result&lt;bool, String&gt;</code> - whether floating panes are now hidden</p>
+<hr />
+<h3 id="toggle_floating_panes"><a class="header" href="#toggle_floating_panes"><code>toggle_floating_panes</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn toggle_floating_panes(tab_id: Option&lt;u64&gt;)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Toggle the visibility of the floating panes in the specified tab, or the active tab if <code>None</code>.</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tab_id</code></td><td><code>Option&lt;u64&gt;</code></td><td>Tab ID, or <code>None</code> for the active tab</td></tr>
+</tbody></table>
+</div>
 <hr />
 <h2 id="pane-manipulation"><a class="header" href="#pane-manipulation">Pane Manipulation</a></h2>
 <hr />
@@ -1817,6 +1915,14 @@ layout {
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
 <p>Toggle the focused pane to be fullscreen or normal sized.</p>
 <hr />
+<h3 id="toggle_focus_no_ui_fullscreen"><a class="header" href="#toggle_focus_no_ui_fullscreen"><code>toggle_focus_no_ui_fullscreen</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn toggle_focus_no_ui_fullscreen()
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Toggle the focused pane to be fullscreen or normal sized, with the fullscreen pane covering the entire display - including the space normally occupied by the UI bars (eg. the tab-bar and status-bar). Unlike <a href="#toggle_focus_fullscreen"><code>toggle_focus_fullscreen</code></a>, which keeps them visible.</p>
+<hr />
 <h3 id="toggle_pane_id_fullscreen"><a class="header" href="#toggle_pane_id_fullscreen"><code>toggle_pane_id_fullscreen</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -1837,6 +1943,24 @@ layout {
 <span class="boring">}</span></code></pre></pre>
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
 <p>Toggle the UI pane frames on or off globally.</p>
+<hr />
+<h3 id="set_pane_frame_style"><a class="header" href="#set_pane_frame_style"><code>set_pane_frame_style</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn set_pane_frame_style(pane_frame_style: PaneFrameStyle)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Set the style of the pane frames for the whole session (see the <a href="./options.html#pane_frame_style"><code>pane_frame_style</code></a> option).</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>pane_frame_style</code></td><td><a href="./plugin-api-types.html#paneframestyle"><code>PaneFrameStyle</code></a></td><td><code>Full</code>, <code>Titles</code> or <code>None</code></td></tr>
+</tbody></table>
+</div>
+<p><strong>Example:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>set_pane_frame_style(PaneFrameStyle::Titles);
+<span class="boring">}</span></code></pre></pre>
 <hr />
 <h3 id="toggle_pane_embed_or_eject"><a class="header" href="#toggle_pane_embed_or_eject"><code>toggle_pane_embed_or_eject</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]

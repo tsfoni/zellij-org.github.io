@@ -158,6 +158,7 @@ Zellij includes built-in session resurrection capabilities. This means that by d
 <p>These exited resurrectable sessions can be listed through the CLI or the built-in <code>session-manager</code>. They can be resurrected through the CLI by attaching to them or through the <code>session-manager</code> by selecting them in the <code>EXITED</code> section.</p>
 <h2 id="what-is-resurrected-and-how-to-configure"><a class="header" href="#what-is-resurrected-and-how-to-configure">What is Resurrected and how to Configure</a></h2>
 <p>By default, Zellij serializes the session layout (panes and tabs) and the command running in each pane (it will re-run them in command panes). Through configuration it's possible to have Zellij also serialize and resurrect the pane viewport and scrollback.</p>
+<p>Tabs are serialized in the order in which they appear in the session, so tabs that were reordered by the user keep their position when the session is resurrected.</p>
 <p>Zellij does not immediately run resurrected commands, but rather places them behind a "Press <code>ENTER</code> to run..." banner so as to prevent uncomfortable accidents with things like <code>rm -rf</code>.</p>
 <h3 id="session_serialization"><a class="header" href="#session_serialization"><code>session_serialization</code></a></h3>
 <p>To disable session serialization (and thus also resurrection), set <code>session_serialization false</code> in the <a href="./configuration.html">config</a>.</p>
@@ -189,7 +190,7 @@ Zellij includes built-in session resurrection capabilities. This means that by d
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="web-client.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="nested-sessions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -203,7 +204,7 @@ Zellij includes built-in session resurrection capabilities. This means that by d
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="web-client.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="nested-sessions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

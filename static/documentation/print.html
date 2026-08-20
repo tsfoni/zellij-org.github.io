@@ -287,7 +287,7 @@ fi
 <p>The best and easiest way is to choose the "Unlock-First (non-colliding)" <a href="./keybinding-presets.html">keybinding preset</a>. If that is not sufficient for your use case, you can also <a href="./changing-modifiers.html">choose different modifiers</a>.</p>
 <h2 id="the-ui-takes-up-too-much-space-what-can-i-do-about-it"><a class="header" href="#the-ui-takes-up-too-much-space-what-can-i-do-about-it">The UI takes up too much space, what can I do about it?</a></h2>
 <p>You can load the <code>compact</code> layout with <code>zellij --layout compact</code>.</p>
-<p>Additionally, you can disable pane frames either at runtime with <code>Ctrl + &lt;p&gt; + &lt;z&gt;</code> or through the <a href="./configuration.html">config</a> with <code>pane_frames: false</code>.</p>
+<p>Additionally, you can disable pane frames either at runtime with <code>Ctrl + &lt;p&gt; + &lt;z&gt;</code> or through the <a href="./configuration.html">config</a> with <code>pane_frames false</code>. A middle ground is <code>pane_frame_style "titles"</code> (the default since <code>0.45.0</code>), which renders a single title line above each pane rather than a full frame around it.</p>
 <h3 id="followup-question-can-i-use-the-compact-layout-but-still-see-the-keybinding-hints-when-necessary"><a class="header" href="#followup-question-can-i-use-the-compact-layout-but-still-see-the-keybinding-hints-when-necessary">Followup Question: can I use the <code>compact</code> layout but still see the keybinding hints when necessary?</a></h3>
 <p>Yes! You can set up a keybinding tooltip toggle for the compact-bar. Choose a key (for example <code>F1</code>) and set it up in the <a href="./configuration.html">config</a> (and then restart):</p>
 <pre><code class="language-javascript">plugins {
@@ -313,11 +313,11 @@ fi
 <li><a href="https://github.com/zellij-org/zellij/issues/2051#issuecomment-1461519892">Alacritty</a></li>
 </ol>
 <h2 id="copy--paste-isnt-working-how-can-i-fix-this"><a class="header" href="#copy--paste-isnt-working-how-can-i-fix-this">Copy / Paste isn't working, how can I fix this?</a></h2>
-<p>Some terminals don't support the the OSC 52 signal, which is the method Zellij uses by default to copy text to the clipboard. To get around this, you can either switch to a supported terminal (eg. Alacritty or xterm) or configure Zellij to use an external utility when copy pasting (eg. xclip, wl-copy or pbcopy).</p>
+<p>Some terminals don't support the OSC 52 signal, which is the method Zellij uses by default to copy text to the clipboard. To get around this, you can either switch to a supported terminal (eg. Alacritty or xterm) or configure Zellij to use an external utility when copy pasting (eg. xclip, wl-copy or pbcopy).</p>
 <p>To do the latter, add one of the following to your <a href="./configuration.html">Zellij Config</a>:</p>
-<pre><code>copy_command: "xclip -selection clipboard" # x11
-copy_command: "wl-copy"                    # wayland
-copy_command: "pbcopy"                     # osx
+<pre><code class="language-javascript">copy_command "xclip -selection clipboard" // x11
+copy_command "wl-copy"                    // wayland
+copy_command "pbcopy"                     // osx
 </code></pre>
 <p>Note that the only method that works when connecting to a remote Zellij session (eg. through SSH) is OSC 52. If you require this functionality, please consider using a terminal that supports it.</p>
 <h2 id="how-can-i-use-floating-panes"><a class="header" href="#how-can-i-use-floating-panes">How can I use floating panes?</a></h2>
@@ -344,7 +344,10 @@ copy_command: "pbcopy"                     # osx
 <h2 id="editing-the-pane-scrollbuffer-with-ctrl--s--e-doesnt-work-whats-wrong"><a class="header" href="#editing-the-pane-scrollbuffer-with-ctrl--s--e-doesnt-work-whats-wrong">Editing the pane scrollbuffer with <code>ctrl + &lt;s&gt; + &lt;e&gt;</code> doesn't work, what's wrong?</a></h2>
 <p>By default, Zellij looks for an editor defined in the <code>EDITOR</code> or <code>VISUAL</code> environment variables (in this order).
 Make sure one is set (eg. <code>export EDITOR=/usr/bin/vim</code>) before Zellij starts.
-Alternatively, you can set one in the Zellij <a href="./configuration.html">config</a> using <code>scrollback-editor</code>.</p>
+Alternatively, you can set one in the Zellij <a href="./configuration.html">config</a> using <code>scrollback_editor</code>.</p>
+<h2 id="programs-in-my-panes-cannot-read-the-clipboard-why"><a class="header" href="#programs-in-my-panes-cannot-read-the-clipboard-why">Programs in my panes cannot read the clipboard, why?</a></h2>
+<p>Since <code>0.45.0</code>, Zellij replies with an empty clipboard to programs that attempt to <em>read</em> the clipboard through OSC 52. Copying (OSC 52 write) is unaffected.</p>
+<p>Clipboard reading can be enabled with the <a href="./options.html#dangerously_enable_paste_buffer_read"><code>dangerously_enable_paste_buffer_read</code></a> option, but note that once enabled, <strong>any</strong> program in <strong>any</strong> pane (including one connected over SSH) can read the system clipboard without prompting.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="commands"><a class="header" href="#commands">Commands</a></h1>
 <p>These commands can be invoked with <code>zellij [SUBCOMMAND]</code>.
 For more details, each subcommand has its own help section when run with the
@@ -385,8 +388,17 @@ To see a list of options look <a href="./command-line-options.html">here</a>.</p
 <tr><td style="text-align: left">--help</td><td>Display the help prompt</td></tr>
 <tr><td style="text-align: left">--debug</td><td>Gather additional debug information</td></tr>
 <tr><td style="text-align: left">--version</td><td>Print version information</td></tr>
+<tr><td style="text-align: left">--layout-string [KDL]</td><td>Use a raw KDL layout string instead of a layout file</td></tr>
 </tbody></table>
-</div><div style="break-before: page; page-break-before: always;"></div><h1 id="rebinding-keys"><a class="header" href="#rebinding-keys">Rebinding Keys</a></h1>
+</div>
+<h2 id="--layout-string"><a class="header" href="#--layout-string"><code>--layout-string</code></a></h2>
+<p>Takes a <a href="./layouts.html">layout</a> as a raw KDL string rather than as a path to a layout file. Useful for scripting and for generating layouts on the fly.</p>
+<p>If invoked from inside a Zellij session (or with an explicit <code>--session</code>), the layout is added to the running session as new tab(s). Otherwise, a new session is started with it.</p>
+<p>This flag conflicts with <code>--layout</code> and <code>--new-session-with-layout</code>.</p>
+<pre><code>$ zellij --layout-string 'layout { pane split_direction="vertical" { pane; pane; } }'
+</code></pre>
+<p>The layout is parsed and validated before being sent to the session, so syntax errors are reported immediately.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="rebinding-keys"><a class="header" href="#rebinding-keys">Rebinding Keys</a></h1>
 <p>Zellij places great emphasis on being a keyboard-first application. As such, Zellij uses many different shortcuts in order to give users the power to control the application and do so in a way that would make sense to them - not forcing them to learn many obtuse keyboard shortcuts that make little sense and are difficult to remember.</p>
 <p>For some users, these shortcuts may "collide" with other shortcuts they use in the terminal in other programs. For these users, Zellij offers several solutions.</p>
 <ol>
@@ -525,6 +537,16 @@ zellij setup --dump-config &gt; ~/.config/zellij/config.kdl
 <li><a href="options.html#visual_bell">visual_bell</a></li>
 <li><a href="options.html#focus_follows_mouse">focus_follows_mouse</a></li>
 <li><a href="options.html#mouse_click_through">mouse_click_through</a></li>
+<li><a href="options.html#pane_frame_style">pane_frame_style</a></li>
+<li><a href="options.html#stacked_pane_list">stacked_pane_list</a></li>
+<li><a href="options.html#support_kitty_graphics_protocol">support_kitty_graphics_protocol</a></li>
+<li><a href="options.html#mouse_scroll_resize">mouse_scroll_resize</a></li>
+<li><a href="options.html#mouse_hover_tips">mouse_hover_tips</a></li>
+<li><a href="options.html#osc133_command_selection">osc133_command_selection</a></li>
+<li><a href="options.html#word_separators">word_separators</a></li>
+<li><a href="options.html#host_notification_protocol">host_notification_protocol</a></li>
+<li><a href="options.html#nested_session_handling">nested_session_handling</a></li>
+<li><a href="options.html#dangerously_enable_paste_buffer_read">dangerously_enable_paste_buffer_read</a></li>
 </ul>
 <hr />
 <h3 id="on_force_close"><a class="header" href="#on_force_close">on_force_close</a></h3>
@@ -552,7 +574,7 @@ eg. when terminal window with an active zellij session is closed</p>
 <pre><code class="language-javascript">default_shell "fish"
 </code></pre>
 <h3 id="pane_frames"><a class="header" href="#pane_frames">pane_frames</a></h3>
-<p>Toggle between having pane frames around the panes</p>
+<p>Toggle between having pane frames around the panes. The style of these frames is controlled by <a href="options.html#pane_frame_style"><code>pane_frame_style</code></a> - since <code>0.45.0</code> the default style is a single title line above each pane rather than a full border.</p>
 <p>Options:</p>
 <ul>
 <li>true (default)</li>
@@ -640,6 +662,7 @@ or should each user have their own cursor (false)
 Default: false</p>
 <pre><code class="language-javascript">mirror_session true
 </code></pre>
+<p>Note: since <code>0.45.0</code>, each tab is sized according to the viewports of only the clients currently viewing it. Clients focused on different tabs therefore no longer constrain each other, while clients viewing the same tab converge on a common size. Tabs that nobody is viewing keep their last dimensions. This behavior is not configurable.</p>
 <h3 id="layout_dir"><a class="header" href="#layout_dir">layout_dir</a></h3>
 <p>The folder in which Zellij will look for layouts</p>
 <pre><code class="language-javascript">layout_dir "/path/to/my/layout_dir"
@@ -891,6 +914,102 @@ Options:</p>
 </ul>
 <pre><code class="language-javascript">mouse_click_through true
 </code></pre>
+<h3 id="pane_frame_style"><a class="header" href="#pane_frame_style">pane_frame_style</a></h3>
+<p>The style of the pane frames when <code>pane_frames</code> is enabled.</p>
+<p>Options:</p>
+<ul>
+<li>"titles" (default) - a single title line above each pane</li>
+<li>"full" - a full border around each pane (the pre-<code>0.45.0</code> look)</li>
+<li>"none" - no frames at all (identical to <code>pane_frames false</code>)</li>
+</ul>
+<p>Setting <code>pane_frames false</code> forces the style to <code>none</code> regardless of this option.</p>
+<p>The style can also be changed at runtime with the <code>SetPaneFrameStyle</code> <a href="./keybindings-possible-actions.html#setpaneframestyle">action</a> or with <code>zellij action set-pane-frame-style</code>.</p>
+<pre><code class="language-javascript">pane_frame_style "titles"
+</code></pre>
+<h3 id="stacked_pane_list"><a class="header" href="#stacked_pane_list">stacked_pane_list</a></h3>
+<p>Whether stacked panes are rendered as a list of one-line titles with the expanded pane pinned to the bottom of the stack. When false, the expanded pane is rendered in place inside the stack (the pre-<code>0.45.0</code> behavior).</p>
+<p>Options:</p>
+<ul>
+<li>true (default)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">stacked_pane_list false
+</code></pre>
+<h3 id="support_kitty_graphics_protocol"><a class="header" href="#support_kitty_graphics_protocol">support_kitty_graphics_protocol</a></h3>
+<p>Enable support for the Kitty graphics protocol, allowing programs running in panes to display images. Defaults to true if the terminal supports it (queried when Zellij starts). Changing this option requires restarting Zellij.</p>
+<p>Options:</p>
+<ul>
+<li>true (default if terminal supports it)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">support_kitty_graphics_protocol true
+</code></pre>
+<h3 id="mouse_scroll_resize"><a class="header" href="#mouse_scroll_resize">mouse_scroll_resize</a></h3>
+<p>Whether holding Ctrl and scrolling the mouse wheel resizes the focused pane. When false, such scroll events are passed through to the pane instead.</p>
+<p>Options:</p>
+<ul>
+<li>true (default)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">mouse_scroll_resize false
+</code></pre>
+<h3 id="mouse_hover_tips"><a class="header" href="#mouse_hover_tips">mouse_hover_tips</a></h3>
+<p>Whether to show contextual help tips when hovering with the mouse (eg. resize help near pane borders, pane group shortcuts). This is distinct from <code>mouse_hover_effects</code>, which controls hover <em>visual</em> effects such as frame highlighting.</p>
+<p>Options:</p>
+<ul>
+<li>true (default)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">mouse_hover_tips false
+</code></pre>
+<h3 id="osc133_command_selection"><a class="header" href="#osc133_command_selection">osc133_command_selection</a></h3>
+<p>Whether triple-clicking inside output marked with <a href="./shell-integration.html">OSC 133 shell integration</a> sequences selects the whole command and its output rather than the logical line under the cursor.</p>
+<p>Options:</p>
+<ul>
+<li>true (default)</li>
+<li>false</li>
+</ul>
+<pre><code class="language-javascript">osc133_command_selection false
+</code></pre>
+<h3 id="word_separators"><a class="header" href="#word_separators">word_separators</a></h3>
+<p>The characters that terminate a word when double-clicking to select it. Whitespace always separates words and does not need to be included here.</p>
+<p>Default: <code>"[]{}&lt;&gt;()"</code></p>
+<pre><code class="language-javascript">word_separators "[]{}&lt;&gt;()/\\"
+</code></pre>
+<h3 id="host_notification_protocol"><a class="header" href="#host_notification_protocol">host_notification_protocol</a></h3>
+<p>The protocol used to forward desktop notifications emitted by panes (through OSC 9, OSC 99 or OSC 777) to the host terminal. See <a href="./compatibility.html#desktop-notifications">desktop notifications</a>.</p>
+<p>Options:</p>
+<ul>
+<li>"auto" (default) - OSC 99 for terminals that support it (eg. kitty), OSC 9 otherwise</li>
+<li>"osc9" - always use OSC 9</li>
+<li>"osc99" - always use OSC 99</li>
+<li>"bell" - emit a terminal bell instead of a notification</li>
+<li>"off" - do not forward notifications to the host terminal</li>
+</ul>
+<pre><code class="language-javascript">host_notification_protocol "osc9"
+</code></pre>
+<h3 id="nested_session_handling"><a class="header" href="#nested_session_handling">nested_session_handling</a></h3>
+<p>What Zellij should do when a pane contains another (nested) Zellij session. See <a href="./nested-sessions.html">nested sessions</a>.</p>
+<p>Options:</p>
+<ul>
+<li>"ask" (default) - show a prompt when focusing the pane, offering to zoom into the nested session or to take control of it</li>
+<li>"fullscreen" - always zoom into the nested session when focusing its pane</li>
+<li>"descend" - always route input to the nested session when focusing its pane</li>
+<li>"never" - do nothing automatically</li>
+</ul>
+<pre><code class="language-javascript">nested_session_handling "descend"
+</code></pre>
+<h3 id="dangerously_enable_paste_buffer_read"><a class="header" href="#dangerously_enable_paste_buffer_read">dangerously_enable_paste_buffer_read</a></h3>
+<p>Whether programs running inside panes are allowed to <strong>read</strong> the system clipboard through the OSC 52 escape sequence. When false, such requests receive an empty reply.</p>
+<p><strong>Warning</strong>: when this is enabled, any program running in any pane - including one running on a remote machine over SSH - can read the contents of the clipboard at any time, without prompting.</p>
+<p>Copying to the clipboard (OSC 52 write) is not affected by this option and is always available.</p>
+<p>Options:</p>
+<ul>
+<li>true</li>
+<li>false (default)</li>
+</ul>
+<pre><code class="language-javascript">dangerously_enable_paste_buffer_read true
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="configuring-keybindings"><a class="header" href="#configuring-keybindings">Configuring Keybindings</a></h1>
 <p>Zellij comes with a default set of keybindings that try to fit as many different users and use cases while trying to maximize comfort for everyone.</p>
 <p>It is possible to add to these defaults or even override them with an external configuration. For more information about the configuration file itself, see <a href="./configuration.html">Configuration</a>.</p>
@@ -946,6 +1065,9 @@ Options:</p>
 <li>session</li>
 <li>tmux</li>
 </ul>
+<h2 id="a-note-about-scroll-mode"><a class="header" href="#a-note-about-scroll-mode">A note about <code>scroll</code> mode</a></h2>
+<p>Leaving <code>scroll</code> mode keeps the scroll position of the pane - the pane is no longer scrolled back down to the bottom automatically. To scroll to the bottom and leave the mode, use a binding that includes the <a href="./keybindings-possible-actions.html#scrolltobottom"><code>ScrollToBottom</code></a> action.</p>
+<p>Focusing a pane that is scrolled back automatically enters <code>scroll</code> mode, and focusing a pane that is not scrolled back returns to <code>normal</code> mode.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="binding-keys"><a class="header" href="#binding-keys">Binding keys</a></h1>
 <p>Keys are bound with <code>bind</code> instructions inside each mode. A <code>bind</code> instruction consists of a list of keys to be bound, as well as a list of actions to be bound to each of those keys.</p>
 <p><em>Note</em>: All actions will be performed with no sequential guarantees.</p>
@@ -1000,13 +1122,12 @@ bind "Left" // bind the left arrow key
 <li><code>Right</code> (right-arrow key)</li>
 <li><code>Up</code> (up-arrow key)</li>
 <li><code>Down</code> (down-arrow key)</li>
-<li><code>Backspace</code></li>
 <li><code>Home</code></li>
 <li><code>End</code></li>
 <li><code>PageUp</code></li>
 <li><code>PageDown</code></li>
 <li><code>Tab</code></li>
-<li><code>Delete</code></li>
+<li><code>Delete</code> (can also be written as <code>Del</code>)</li>
 <li><code>Insert</code></li>
 <li><code>Space</code></li>
 <li><code>Enter</code></li>
@@ -1036,6 +1157,12 @@ bind "Left" // bind the left arrow key
 <p>Copy the current text selection to the clipboard</p>
 <p><strong>Possible arguments</strong>: None</p>
 <pre><code class="language-javascript">    bind "a" { Copy; }
+</code></pre>
+<h2 id="copylastcommandoutput"><a class="header" href="#copylastcommandoutput"><code>CopyLastCommandOutput</code></a></h2>
+<p>Copy the output of the last command run in the focused pane to the clipboard. Requires the shell to emit <a href="./shell-integration.html">OSC 133 shell integration</a> sequences, which delimit the command's output. The copied region is briefly flashed in the pane.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>c</code> in <code>scroll</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { CopyLastCommandOutput; }
 </code></pre>
 <h2 id="breakpane"><a class="header" href="#breakpane"><code>BreakPane</code></a></h2>
 <p>Break the focused pane out of its current tab into a new tab</p>
@@ -1090,6 +1217,24 @@ bind "Left" // bind the left arrow key
 </code></pre>
 <p>or with ANSI styling preserved:</p>
 <pre><code class="language-javascript">    bind "a" { EditScrollback { ansi true; } }
+</code></pre>
+<h2 id="focusguestsession"><a class="header" href="#focusguestsession"><code>FocusGuestSession</code></a></h2>
+<p>When the focused pane contains a <a href="./nested-sessions.html">nested Zellij session</a>, descend into it - routing keyboard and mouse input to the nested (guest) session and dimming the chrome of the host session.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>[</code> in <code>session</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { FocusGuestSession; }
+</code></pre>
+<h2 id="focushostsession"><a class="header" href="#focushostsession"><code>FocusHostSession</code></a></h2>
+<p>When running inside a <a href="./nested-sessions.html">nested Zellij session</a>, return focus to the host (outer) session.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>]</code> in <code>session</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { FocusHostSession; }
+</code></pre>
+<h2 id="focuslastpane"><a class="header" href="#focuslastpane"><code>FocusLastPane</code></a></h2>
+<p>Change focus back to the pane that was focused before the currently focused one. Takes floating panes into account, and swaps the pane in place when the focused pane is fullscreen.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>;</code> in <code>pane</code> mode and to <code>Alt \</code> in all modes.</p>
+<pre><code class="language-javascript">    bind "a" { FocusLastPane; }
 </code></pre>
 <h2 id="focusnextpane"><a class="header" href="#focusnextpane"><code>FocusNextPane</code></a></h2>
 <p>Change focus to the next pane (order not guaranteed)</p>
@@ -1377,6 +1522,18 @@ bind "Left" // bind the left arrow key
 <p><strong>Possible arguments</strong>: None</p>
 <pre><code class="language-javascript">    bind "a" { ScrollToBottom; }
 </code></pre>
+<h2 id="scrolltonextprompt"><a class="header" href="#scrolltonextprompt"><code>ScrollToNextPrompt</code></a></h2>
+<p>Scroll the focused pane down to the next shell prompt in its scrollback. Requires the shell to emit <a href="./shell-integration.html">OSC 133 shell integration</a> sequences.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>]</code> in <code>scroll</code> and <code>search</code> modes.</p>
+<pre><code class="language-javascript">    bind "a" { ScrollToNextPrompt; }
+</code></pre>
+<h2 id="scrolltopreviousprompt"><a class="header" href="#scrolltopreviousprompt"><code>ScrollToPreviousPrompt</code></a></h2>
+<p>Scroll the focused pane up to the previous shell prompt in its scrollback. Requires the shell to emit <a href="./shell-integration.html">OSC 133 shell integration</a> sequences.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>[</code> in <code>scroll</code> and <code>search</code> modes.</p>
+<pre><code class="language-javascript">    bind "a" { ScrollToPreviousPrompt; }
+</code></pre>
 <h2 id="scrollup"><a class="header" href="#scrollup"><code>ScrollUp</code></a></h2>
 <p>Scroll the focused pane up 1 line</p>
 <p><strong>Possible arguments</strong>: None</p>
@@ -1402,6 +1559,12 @@ bind "Left" // bind the left arrow key
 <p><strong>Required arguments</strong>: "CaseSensitivity" | "Wrap" | "WhileWord"</p>
 <pre><code class="language-javascript">    bind "a" { SearchToggleOption "CaseSensitivity"; }
 </code></pre>
+<h2 id="selectcommandatscrollposition"><a class="header" href="#selectcommandatscrollposition"><code>SelectCommandAtScrollPosition</code></a></h2>
+<p>Select the command and its output at the current scroll position of the focused pane, so that it can be copied. Requires the shell to emit <a href="./shell-integration.html">OSC 133 shell integration</a> sequences.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>m</code> in <code>scroll</code> and <code>search</code> modes.</p>
+<pre><code class="language-javascript">    bind "a" { SelectCommandAtScrollPosition; }
+</code></pre>
 <h2 id="setdarktheme"><a class="header" href="#setdarktheme"><code>SetDarkTheme</code></a></h2>
 <p>Switch the theme to dark (uses the configured <code>theme_dark</code>).</p>
 <p><strong>Possible arguments</strong>: None</p>
@@ -1411,6 +1574,11 @@ bind "Left" // bind the left arrow key
 <p>Switch the theme to light (uses the configured <code>theme_light</code>).</p>
 <p><strong>Possible arguments</strong>: None</p>
 <pre><code class="language-javascript">    bind "a" { SetLightTheme; }
+</code></pre>
+<h2 id="setpaneframestyle"><a class="header" href="#setpaneframestyle"><code>SetPaneFrameStyle</code></a></h2>
+<p>Set the style of the pane frames for the whole session (see the <a href="./options.html#pane_frame_style"><code>pane_frame_style</code></a> option)</p>
+<p><strong>Required arguments</strong>: "full" | "titles" | "none"</p>
+<pre><code class="language-javascript">    bind "a" { SetPaneFrameStyle "full"; }
 </code></pre>
 <h2 id="switchtomode"><a class="header" href="#switchtomode"><code>SwitchToMode</code></a></h2>
 <p>Switch the current input mode</p>
@@ -1471,6 +1639,18 @@ bind "Left" // bind the left arrow key
 <p>Toggle the focused pane as fullscreen on/off</p>
 <p><strong>Possible arguments</strong>: None</p>
 <pre><code class="language-javascript">    bind "a" { ToggleFocusFullscreen; }
+</code></pre>
+<h2 id="togglefocusnouifullscreen"><a class="header" href="#togglefocusnouifullscreen"><code>ToggleFocusNoUiFullscreen</code></a></h2>
+<p>Toggle the focused pane as fullscreen on/off, with the pane taking up the entire display - including the space normally occupied by the UI bars (eg. the tab-bar and status-bar). Unlike <code>ToggleFocusFullscreen</code>, which keeps them visible.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>Shift f</code> in <code>pane</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { ToggleFocusNoUiFullscreen; }
+</code></pre>
+<h2 id="togglehostfullscreen"><a class="header" href="#togglehostfullscreen"><code>ToggleHostFullscreen</code></a></h2>
+<p>When running inside a <a href="./nested-sessions.html">nested Zellij session</a>, toggle the fullscreen state of this session's pane within the host (outer) session.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>f</code> in <code>session</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { ToggleHostFullscreen; }
 </code></pre>
 <h2 id="togglemousemode"><a class="header" href="#togglemousemode"><code>ToggleMouseMode</code></a></h2>
 <p>Toggle mouse support on/off</p>
@@ -1552,6 +1732,21 @@ bind "Left" // bind the left arrow key
 <div style="break-before: page; page-break-before: always;"></div><h1 id="themes"><a class="header" href="#themes">Themes</a></h1>
 <h2 id="using-the-built-in-themes"><a class="header" href="#using-the-built-in-themes">Using the built-in themes</a></h2>
 <p>The built-in themes in Zellij can be used by setting the <code>theme [THEME_NAME]</code> in the <a href="./configuration.html">configuration file</a>. Take a look at the <a href="./theme-list.html">list of themes</a> to see what's possible.</p>
+<h2 id="automatic-dark-and-light-theme-switching"><a class="header" href="#automatic-dark-and-light-theme-switching">Automatic dark and light theme switching</a></h2>
+<p>Instead of (or in addition to) the static <code>theme</code> directive, two themes can be configured - one for when the host terminal is in dark mode, and one for when it is in light mode:</p>
+<pre><code class="language-javascript">theme_dark "catppuccin-mocha"
+theme_light "catppuccin-latte"
+</code></pre>
+<p><strong>Both</strong> <a href="./options.html#theme_dark"><code>theme_dark</code></a> and <a href="./options.html#theme_light"><code>theme_light</code></a> must be set for automatic switching to happen. If only one of them is set, the static <code>theme</code> remains authoritative.</p>
+<p>Zellij detects the color scheme of the terminal it is attached to (through <code>DSR 997</code> replies and <code>CSI 2031</code> change notifications) and switches themes when it changes. Terminals that do not report their color scheme will not trigger switching.</p>
+<p>The theme can also be switched manually, with these actions (bindable in the <a href="./keybindings.html"><code>keybinds</code></a> block) and their CLI equivalents:</p>
+<div class="table-wrapper"><table><thead><tr><th>Action</th><th>CLI</th></tr></thead><tbody>
+<tr><td><a href="./keybindings-possible-actions.html#setdarktheme"><code>SetDarkTheme</code></a></td><td><code>zellij action set-dark-theme</code></td></tr>
+<tr><td><a href="./keybindings-possible-actions.html#setlighttheme"><code>SetLightTheme</code></a></td><td><code>zellij action set-light-theme</code></td></tr>
+<tr><td><a href="./keybindings-possible-actions.html#toggletheme"><code>ToggleTheme</code></a></td><td><code>zellij action toggle-theme</code></td></tr>
+</tbody></table>
+</div>
+<p>Programs running inside panes can subscribe to color scheme changes themselves with <code>CSI ? 2031 h</code> and will receive <code>CSI ?997;1 n</code> (dark) or <code>CSI ?997;2 n</code> (light) whenever the mode changes.</p>
 <h2 id="theme-definition-specification"><a class="header" href="#theme-definition-specification">Theme Definition Specification</a></h2>
 <p>Themes in Zellij are defined according to UI components. These components are used in the various plugins that make up the Zellij interface, and can also be used dynamically in user plugins.</p>
 <p><img src="/img/theme-spec.png" alt="theme definition spec diagram" /></p>
@@ -1630,7 +1825,7 @@ bind "Left" // bind the left arrow key
 <pre><code class="language-javascript">theme "your_theme_name"
 </code></pre>
 <p>directive above or below it. This way, Zellij will pick up on any changes to the theme in real time and you will not have to restart the session to see your changes.</p>
-<p>Otherwise, it's possible to define themes in separate files under the <code>themes</code> folder located in <code>CONFIG_DIR/themes</code>. You can find the exact location of this folder with <code>zellij setup --check</code>.</p>
+<p>Otherwise, it's possible to define themes in separate files under the <code>themes</code> folder located in <code>CONFIG_DIR/themes</code>. You can find the exact location of this folder with <code>zellij setup --check</code>. Changes to files in this folder are also picked up live, without restarting the session.</p>
 <p>Themes can also be loaded from the command line when starting Zellij:</p>
 <pre><code>zellij options --theme [NAME]
 </code></pre>
@@ -1742,6 +1937,10 @@ bind "Left" // bind the left arrow key
 <blockquote>
 <p><strong>Migration Note:</strong> The <code>--disable-mouse-mode</code> and <code>--no-pane-frames</code> flags have been removed. Use <code>--mouse-mode false</code> (equivalent of <code>--disable-mouse-mode</code>) and <code>--pane-frames false</code> (equivalent of <code>--no-pane-frames</code>) instead.</p>
 </blockquote>
+<p>Every option that can be set in the <a href="./options.html">configuration file</a> also has a corresponding flag here, using the same name in kebab-case (eg. the <code>nested_session_handling</code> option is <code>--nested-session-handling</code>).</p>
+<blockquote>
+<p><strong>Note:</strong> since <code>0.45.0</code> (which uses clap 4 for argument parsing), repeating the same flag no longer produces an error - the last occurrence overrides the previous ones. Help output is also styled and colored.</p>
+</blockquote>
 <pre><code>USAGE:
     zellij options [OPTIONS]
 
@@ -1759,6 +1958,10 @@ OPTIONS:
         --copy-on-select &lt;COPY_ON_SELECT&gt;
             Automatically copy when selecting text (true or false) [possible values: true, false]
 
+        --dangerously-enable-paste-buffer-read &lt;DANGEROUSLY_ENABLE_PASTE_BUFFER_READ&gt;
+            Allow programs running in panes to read the clipboard through OSC 52 (true or false)
+            [possible values: true, false]
+
         --default-layout &lt;DEFAULT_LAYOUT&gt;
             Set the default layout
 
@@ -1771,7 +1974,9 @@ OPTIONS:
         --disable-mouse-mode
             Disable handling of mouse events (REMOVED - use --mouse-mode false instead)
 
-            Print help information
+        --host-notification-protocol &lt;HOST_NOTIFICATION_PROTOCOL&gt;
+            The protocol used to forward pane notifications to the host terminal [possible values:
+            auto, osc9, osc99, bell, off]
 
         --layout-dir &lt;LAYOUT_DIR&gt;
             Set the layout_dir, defaults to subdirectory of config dir
@@ -1780,9 +1985,21 @@ OPTIONS:
             Mirror session when multiple users are connected (true or false) [possible values: true,
             false]
 
+        --mouse-hover-tips &lt;MOUSE_HOVER_TIPS&gt;
+            Show contextual help tips when hovering with the mouse (true or false) [possible values:
+            true, false]
+
         --mouse-mode &lt;MOUSE_MODE&gt;
             Set the handling of mouse events (true or false) Can be temporarily bypassed by the
             [SHIFT] key [possible values: true, false]
+
+        --mouse-scroll-resize &lt;MOUSE_SCROLL_RESIZE&gt;
+            Resize the focused pane with Ctrl + ScrollWheel (true or false) [possible values: true,
+            false]
+
+        --nested-session-handling &lt;NESTED_SESSION_HANDLING&gt;
+            How to handle a nested Zellij session running inside a pane [possible values: ask,
+            fullscreen, descend, never]
 
         --no-pane-frames
             Disable display of pane frames (REMOVED - use --pane-frames false instead)
@@ -1790,11 +2007,18 @@ OPTIONS:
         --on-force-close &lt;ON_FORCE_CLOSE&gt;
             Set behaviour on force close (quit or detach)
 
+        --osc133-command-selection &lt;OSC133_COMMAND_SELECTION&gt;
+            Select the whole command and its output when triple-clicking inside OSC 133 marked
+            output (true or false) [possible values: true, false]
+
         --pane-frames &lt;PANE_FRAMES&gt;
             Set display of the pane frames (true or false) [possible values: true, false]
 
+        --pane-frame-style &lt;PANE_FRAME_STYLE&gt;
+            Set the style of the pane frames [possible values: full, titles, none]
+
         --scroll-buffer-size &lt;SCROLL_BUFFER_SIZE&gt;
-            
+            The number of lines to keep in the scrollback buffer of each pane
 
         --scrollback-editor &lt;SCROLLBACK_EDITOR&gt;
             Explicit full path to open the scrollback editor (default is $EDITOR or $VISUAL)
@@ -1806,20 +2030,28 @@ OPTIONS:
             Allow plugins to use a more simplified layout that is compatible with more fonts (true
             or false) [possible values: true, false]
 
+        --stacked-pane-list &lt;STACKED_PANE_LIST&gt;
+            Render stacked panes as a list of titles with the expanded pane at the bottom (true or
+            false) [possible values: true, false]
+
+        --support-kitty-graphics-protocol &lt;SUPPORT_KITTY_GRAPHICS_PROTOCOL&gt;
+            Support the kitty graphics (image) protocol, if the terminal supports it (true or false)
+            [possible values: true, false]
+
         --theme &lt;THEME&gt;
             Set the default theme
 
+        --theme-dark &lt;THEME_DARK&gt;
+            Set the theme to use when the host terminal is in dark mode
+
         --theme-dir &lt;THEME_DIR&gt;
             Set the theme_dir, defaults to subdirectory of config dir
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="migrating-from-old-yaml-layouts--configs"><a class="header" href="#migrating-from-old-yaml-layouts--configs">Migrating from old YAML layouts / configs</a></h1>
-<p>Starting from Zellij <code>0.32.0</code>, Zellij uses <a href="https://kdl.dev">KDL</a> layouts as described in these documents.</p>
-<p>Up until this version, Zellij used <code>YAML</code> configuration files.</p>
-<p>As a matter of convenience, when Zellij is run with an old configuration / layout / theme file (either explicitly with a cli flag or if it found the file in the default locations) it will prompt the user and convert that file to the new format.</p>
-<p>This can also be done manually:</p>
-<pre><code>$ zellij convert-config /path/to/my/config.yaml &gt; /path/to/my/config.kdl
-$ zellij convert-layout /path/to/my/layout.yaml &gt; /path/to/my/layout.kdl
-$ zellij convert-theme /path/to/my/theme.yaml &gt; /path/to/my/theme.kdl
+
+        --theme-light &lt;THEME_LIGHT&gt;
+            Set the theme to use when the host terminal is in light mode
+
+        --word-separators &lt;WORD_SEPARATORS&gt;
+            The characters (in addition to whitespace) that terminate a word when double-clicking
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="controlling-zellij-through-the-cli"><a class="header" href="#controlling-zellij-through-the-cli">Controlling Zellij through the CLI</a></h1>
 <p>Zellij can be controlled through the CLI. Whether inside or outside a zellij session, one can issue commands from the terminal to interact with any session running on the machine.</p>
@@ -1859,6 +2091,7 @@ $ zrf htop # open a new floating pane with htop
 $ ze ./main.rs # open a new pane with your editor (eg. vim) pointed at ./main.rs
 </code></pre>
 <p>See your shell's documentation for information on where to append these.</p>
+<p>The fish completions additionally complete session names for <code>zellij attach</code>, <code>zellij kill-session</code> and <code>zellij delete-session</code> (as well as their aliases, eg. <code>d</code>).</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="zellij-run--edit"><a class="header" href="#zellij-run--edit">Zellij Run &amp; Edit</a></h1>
 <hr />
 <ul>
@@ -1897,10 +2130,13 @@ $ ze ./main.rs # open a new pane with your editor (eg. vim) pointed at ./main.rs
 -n, --name &lt;NAME&gt;                 Name of the new pane
     --near-current-pane           if set, will open the pane near the current one rather than
                                   following the user's focus
+    --no-focus                    Open the pane without changing the focus of any client
     --pinned &lt;PINNED&gt;             Whether to pin a floating pane so that it is always on top
 -s, --start-suspended             Start the command suspended, only running after you first
                                   presses ENTER
     --stacked
+    --tab-id &lt;TAB_ID&gt;             Open the pane in the tab with this id (conflicts with
+                                  --in-place and --near-current-pane)
     --width &lt;WIDTH&gt;               The width if the pane is floating as a bare integer (eg. 1) or
                                   percent (eg. 10%)
 -x, --x &lt;X&gt;                       The x coordinates if the pane is floating as a bare integer
@@ -1909,6 +2145,8 @@ $ ze ./main.rs # open a new pane with your editor (eg. vim) pointed at ./main.rs
                                   (eg. 1) or percent (eg. 10%)
 </code></pre>
 <p><strong>Note</strong>: to shorten this command to a more friendly length, see <code>Completions</code> under: <a href="./controlling-zellij-through-cli.html#completions">CLI</a></p>
+<p><strong>About <code>--no-focus</code></strong>: the pane is opened without changing the focus of any connected client. Its placement is relative to the pane the command was issued from rather than to the focused pane. This is useful for scripts that open panes in the background.</p>
+<p><strong>About <code>--tab-id</code></strong>: the pane is opened in the tab with the given (numeric) id rather than in the focused tab. Tab ids can be obtained with <code>zellij action list-tabs</code> or <code>zellij action query-tab-names</code>.</p>
 <p>This new pane will not immediately close when the command exits. Instead, it will show its exit status on the pane frame and allow users to press <code>&lt;ENTER&gt;</code> to re-run the command inside the same pane, or <code>&lt;Ctrl-c&gt;</code> to close the pane.</p>
 <p>We feel this is a new and powerful way to interact with the command line.</p>
 <p><img src="img/command-pane-screenshot.png" alt="command-pane" /></p>
@@ -1937,7 +2175,10 @@ $ zellij edit ./main.rs --line-number 10 # open main.rs pointed at line number 1
 -l, --line-number &lt;LINE_NUMBER&gt;    Open the file in the specified line number
     --near-current-pane            if set, will open the pane near the current one rather than
                                    following the user's focus
+    --no-focus                     Open the pane without changing the focus of any client
     --pinned &lt;PINNED&gt;              Whether to pin a floating pane so that it is always on top
+    --tab-id &lt;TAB_ID&gt;              Open the pane in the tab with this id (conflicts with
+                                   --in-place and --near-current-pane)
     --width &lt;WIDTH&gt;                The width if the pane is floating as a bare integer (eg. 1)
                                    or percent (eg. 10%)
 -x, --x &lt;X&gt;                        The x coordinates if the pane is floating as a bare integer
@@ -1963,6 +2204,7 @@ $ zellij edit ./main.rs --line-number 10 # open main.rs pointed at line number 1
 <li><a href="cli-actions.html#dump-screen">dump-screen</a></li>
 <li><a href="cli-actions.html#edit">edit</a></li>
 <li><a href="cli-actions.html#edit-scrollback">edit-scrollback</a></li>
+<li><a href="cli-actions.html#focus-last-pane">focus-last-pane</a></li>
 <li><a href="cli-actions.html#focus-next-pane">focus-next-pane</a></li>
 <li><a href="cli-actions.html#focus-pane-id">focus-pane-id</a></li>
 <li><a href="cli-actions.html#focus-previous-pane">focus-previous-pane</a></li>
@@ -2009,6 +2251,7 @@ $ zellij edit ./main.rs --line-number 10 # open main.rs pointed at line number 1
 <li><a href="cli-actions.html#set-light-theme">set-light-theme</a></li>
 <li><a href="cli-actions.html#set-pane-borderless">set-pane-borderless</a></li>
 <li><a href="cli-actions.html#set-pane-color">set-pane-color</a></li>
+<li><a href="cli-actions.html#set-pane-frame-style">set-pane-frame-style</a></li>
 <li><a href="cli-actions.html#show-floating-panes">show-floating-panes</a></li>
 <li><a href="cli-actions.html#start-or-reload-plugin">start-or-reload-plugin</a></li>
 <li><a href="cli-actions.html#stack-panes">stack-panes</a></li>
@@ -2017,6 +2260,7 @@ $ zellij edit ./main.rs --line-number 10 # open main.rs pointed at line number 1
 <li><a href="cli-actions.html#toggle-active-sync-tab">toggle-active-sync-tab</a></li>
 <li><a href="cli-actions.html#toggle-floating-panes">toggle-floating-panes</a></li>
 <li><a href="cli-actions.html#toggle-fullscreen">toggle-fullscreen</a></li>
+<li><a href="cli-actions.html#toggle-no-ui-fullscreen">toggle-no-ui-fullscreen</a></li>
 <li><a href="cli-actions.html#toggle-pane-borderless">toggle-pane-borderless</a></li>
 <li><a href="cli-actions.html#toggle-pane-embed-or-floating">toggle-pane-embed-or-floating</a></li>
 <li><a href="cli-actions.html#toggle-pane-frames">toggle-pane-frames</a></li>
@@ -2168,6 +2412,7 @@ $ zellij action dump-screen --pane-id terminal_3 --full
         --height &lt;HEIGHT&gt;          Height for floating pane (requires --floating)
         --pinned &lt;PINNED&gt;          Pin the floating pane (requires --floating)
         --near-current-pane        Open near the current pane rather than following focus
+        --no-focus                 Open the pane without changing the focus of any client
         --tab-id &lt;TAB_ID&gt;         Target a specific tab by ID (conflicts with --in-place, --near-current-pane)
     -b, --borderless &lt;BORDERLESS&gt;  Start without a border
 </code></pre>
@@ -2188,6 +2433,11 @@ $ zellij action edit ./my-file.rs --in-place
 <p>eg.</p>
 <pre><code>$ zellij action edit-scrollback
 $ zellij action edit-scrollback --pane-id terminal_3 --ansi
+</code></pre>
+<h4 id="focus-last-pane"><a class="header" href="#focus-last-pane">focus-last-pane</a></h4>
+<p>Change focus back to the pane that was focused before the currently focused one. Works across floating and tiled panes, and swaps the pane in place when the focused pane is fullscreen.</p>
+<p>eg.</p>
+<pre><code>$ zellij action focus-last-pane
 </code></pre>
 <h4 id="focus-next-pane"><a class="header" href="#focus-next-pane">focus-next-pane</a></h4>
 <p>Change focus to the next pane</p>
@@ -2288,9 +2538,11 @@ zellij action launch-or-focus-plugin zellij:strider --in-place --move-to-focused
     -c, --configuration &lt;CONFIG&gt;   Plugin configuration (key=value pairs)
     -s, --skip-plugin-cache        Skip the plugin cache and force reloading
         --tab-id &lt;TAB_ID&gt;          Target a specific tab by ID (conflicts with --in-place)
+        --no-focus                 Open the plugin pane without changing the focus of any client
 </code></pre>
 <p>eg.</p>
 <pre><code>zellij action launch-plugin file:/path/to/plugin.wasm --floating
+zellij action launch-plugin zellij:session-manager --no-focus
 </code></pre>
 <h4 id="list-clients"><a class="header" href="#list-clients">list-clients</a></h4>
 <p>List all clients connected to the current session, their focused pane id and their running program (if it's not the default shell and if Zellij can detect it).</p>
@@ -2531,11 +2783,13 @@ $ zellij action move-tab left --tab-id 3
         --pinned &lt;PINNED&gt;              Pin the floating pane (requires --floating)
         --stacked                      Open in stacked mode (conflicts with --floating/--direction)
         --tab-id &lt;TAB_ID&gt;             Target a specific tab by ID (conflicts with --in-place, --near-current-pane)
+        --pane-id &lt;PANE_ID&gt;            The pane to replace when using --in-place (default: the focused pane)
     -b, --blocking                     Block until the pane exits
         --block-until-exit-success     Block until the command exits with status 0
         --block-until-exit-failure     Block until the command exits with non-zero status
         --block-until-exit             Block until the command exits regardless of status
         --near-current-pane            Open near the current pane rather than following focus
+        --no-focus                     Open the pane without changing the focus of any client
         --borderless &lt;BORDERLESS&gt;      Start without a border
 </code></pre>
 <p>eg.</p>
@@ -2543,8 +2797,11 @@ $ zellij action move-tab left --tab-id 3
 $ zellij action new-pane --name "follow this log!" -- tail -f /tmp/my-log-file
 $ zellij action new-pane --stacked
 $ zellij action new-pane --in-place -- htop
+$ zellij action new-pane --in-place --pane-id terminal_4 -- htop
 $ zellij action new-pane --plugin zellij:strider --floating
+$ zellij action new-pane --no-focus -- tail -f /tmp/my-log-file
 </code></pre>
+<p><strong>Note about <code>--no-focus</code></strong>: the pane is opened without changing the focus of any connected client. Its placement is relative to the pane the command was issued from rather than to the focused pane.</p>
 <p><strong>Note:</strong> This can also be shortened to <code>zellij run</code></p>
 <p>eg.</p>
 <pre><code>$ zellij run -- tail -f /tmp/my-log-file
@@ -2567,11 +2824,14 @@ See <a href="./creating-a-layout.html#cwd-composition">layout CWD composition</a
         --block-until-exit-success     Block until the command exits with status 0
         --block-until-exit-failure     Block until the command exits with non-zero status
         --block-until-exit             Block until the command exits regardless of status
+        --no-focus                     Create the tab without changing the focus of any client
 </code></pre>
 <p>eg.</p>
 <pre><code>$ zellij action new-tab --layout /path/to/layout.kdl --name "my tab"
 $ zellij action new-tab -- htop
+$ zellij action new-tab --no-focus --name "background tab"
 </code></pre>
+<p><strong>Note about <code>--no-focus</code></strong>: the new tab is created in the background without changing the focus of any connected client. When a layout is used, its <code>focus</code> properties are suppressed as well.</p>
 <h4 id="next-swap-layout"><a class="header" href="#next-swap-layout">next-swap-layout</a></h4>
 <p>Switch to the next swap layout for the current tab</p>
 <p><strong>OPTIONS</strong>:</p>
@@ -2582,7 +2842,7 @@ $ zellij action new-tab -- htop
 </code></pre>
 <h4 id="override-layout"><a class="header" href="#override-layout">override-layout</a></h4>
 <p>Override the layout of the active tab with the specified layout file.</p>
-<p><strong>ARGS</strong>: Path to the layout file</p>
+<p><strong>ARGS (optional)</strong>: Path to the layout file - either this or <code>--layout-string</code> must be provided</p>
 <p><strong>OPTIONS</strong>:</p>
 <pre><code>        --layout-dir &lt;LAYOUT_DIR&gt;              Default folder for layouts
         --layout-string &lt;LAYOUT_STRING&gt;        Raw KDL layout string to use directly (conflicts with layout path arg)
@@ -2593,7 +2853,9 @@ $ zellij action new-tab -- htop
 <p>eg.</p>
 <pre><code>$ zellij action override-layout /path/to/layout.kdl
 $ zellij action override-layout /path/to/layout.kdl --retain-existing-terminal-panes --apply-only-to-active-tab
+$ zellij action override-layout --layout-string 'layout { pane; pane; }'
 </code></pre>
+<p><strong>Note</strong>: layouts provided with <code>--layout-string</code> (here and in <code>new-tab</code> / <code>switch-session</code>) are parsed and validated before being sent to the session, so syntax errors are reported immediately.</p>
 <h4 id="page-scroll-down"><a class="header" href="#page-scroll-down">page-scroll-down</a></h4>
 <p>Scroll down one page in focus pane</p>
 <p><strong>OPTIONS</strong>:</p>
@@ -2759,6 +3021,14 @@ $ zellij action send-keys --pane-id terminal_3 "Alt b" "Enter"
 <p>eg.</p>
 <pre><code>$ zellij action set-pane-borderless --pane-id terminal_3 --borderless true
 </code></pre>
+<h4 id="set-pane-frame-style"><a class="header" href="#set-pane-frame-style">set-pane-frame-style</a></h4>
+<p>Set the style of the pane frames for the whole session at runtime. This is the runtime equivalent of the <a href="./options.html#pane_frame_style"><code>pane_frame_style</code></a> configuration option.</p>
+<p><strong>ARGS</strong>: The frame style - one of <code>full</code> (a full border around each pane), <code>titles</code> (a single title line above each pane) or <code>none</code> (no frames)</p>
+<p>eg.</p>
+<pre><code>$ zellij action set-pane-frame-style titles
+$ zellij action set-pane-frame-style full
+$ zellij action set-pane-frame-style none
+</code></pre>
 <h4 id="set-pane-color"><a class="header" href="#set-pane-color">set-pane-color</a></h4>
 <p>Set the default foreground and/or background color of a pane. Colors can be specified as hex (eg. "#00e000") or rgb notation (eg. "rgb:00/e0/00").</p>
 <p><strong>OPTIONS</strong>:</p>
@@ -2841,6 +3111,16 @@ $ zellij action switch-session my-session --tab-position 2 --layout /path/to/lay
 </code></pre>
 <p>eg.</p>
 <pre><code>$ zellij action toggle-fullscreen
+</code></pre>
+<h4 id="toggle-no-ui-fullscreen"><a class="header" href="#toggle-no-ui-fullscreen">toggle-no-ui-fullscreen</a></h4>
+<p>Toggle between fullscreen focus pane and normal layout, with the pane taking up the entire display - including the space normally occupied by the UI bars (eg. the tab-bar and status-bar). This is unlike <code>toggle-fullscreen</code>, which keeps the UI bars visible.</p>
+<p><strong>OPTIONS</strong>:</p>
+<pre><code>    -p, --pane-id &lt;PANE_ID&gt;    Target a specific pane by ID
+    -t, --tab-id &lt;TAB_ID&gt;      Target a specific tab by ID
+</code></pre>
+<p>eg.</p>
+<pre><code>$ zellij action toggle-no-ui-fullscreen
+$ zellij action toggle-no-ui-fullscreen --pane-id terminal_3
 </code></pre>
 <h4 id="toggle-pane-borderless"><a class="header" href="#toggle-pane-borderless">toggle-pane-borderless</a></h4>
 <p>Toggle the borderless state of a specific pane</p>
@@ -2945,8 +3225,14 @@ $ zellij action switch-session my-session --tab-position 2 --layout /path/to/lay
     -i, --in-place
             Open the new pane in place of the current pane, temporarily suspending it
 
+        --no-focus
+            Open the plugin pane without changing the focus of any client
+
     -s, --skip-plugin-cache
             Skip the plugin cache and force reloading of the plugin (good for development)
+
+        --tab-id &lt;TAB_ID&gt;
+            Open the plugin pane in the tab with this id (conflicts with --in-place)
 
         --width &lt;WIDTH&gt;
             The width if the pane is floating as a bare integer (eg. 1) or percent (eg. 10%)
@@ -2960,7 +3246,7 @@ $ zellij action switch-session my-session --tab-position 2 --layout /path/to/lay
 <h2 id="zellij-pipe"><a class="header" href="#zellij-pipe">Zellij Pipe</a></h2>
 <p>Zellij <a href="./plugin-pipes.html">pipes</a> provide a way to send messages to one or more plugins, launching them on first-message if they are not running.</p>
 <p>eg.</p>
-<pre><code>$ zellij plugin -- https://path/to/my/plugin.wasm
+<pre><code>$ zellij pipe --name my_pipe_name -- my_arbitrary_data
 </code></pre>
 <p><strong>USAGE</strong>:</p>
 <pre><code>zellij pipe [OPTIONS] [--] &lt;PAYLOAD&gt;
@@ -2976,7 +3262,6 @@ zellij pipe --name my_pipe_name -- my_arbitrary_data
 * Pipe data into this command's STDIN and get output from the plugin on this command's STDOUT
 
 tail -f /tmp/my-live-logfile | zellij pipe --name logs --plugin https://example.com/my-plugin.wasm | wc -l
-    zellij plugin [OPTIONS] [--] &lt;URL&gt;
 </code></pre>
 <p><strong>ARGS</strong>:</p>
 <pre><code>    &lt;PAYLOAD&gt;    The data to send down this pipe (if blank, will listen to STDIN)
@@ -4125,6 +4410,7 @@ layout {
 <h4 id="stacked"><a class="header" href="#stacked">stacked</a></h4>
 <p>If <code>true</code>, this pane property dictates that the children panes of this pane will be arranged in a stack.</p>
 <p>In a stack of panes, all panes except one have just one line - showing their title (and their scroll and exit code when relevant). The focused pane among these is displayed normally as any other pane.</p>
+<p>Since <code>0.45.0</code>, a stack is rendered as a list of these one-line titles with the expanded pane pinned to the bottom of the stack, rather than expanded in place between the titles. The previous rendering can be restored by setting the <a href="./options.html#stacked_pane_list"><code>stacked_pane_list</code></a> option to <code>false</code>.</p>
 <p>eg.</p>
 <pre><code class="language-javascript">layout {
     pane stacked=true {
@@ -4170,6 +4456,7 @@ layout {
 <h3 id="tabs"><a class="header" href="#tabs">Tabs</a></h3>
 <p><code>tab</code> nodes can optionally be used to start a layout with several tabs.</p>
 <p><strong>Note</strong>: all tab arguments should be specified on its title line. The child-braces are reserved for its child panes.</p>
+<p><strong>Note</strong>: properties that belong to a tab (<code>name</code>, <code>split_direction</code> and <code>hide_floating_panes</code>) cannot be placed on the <code>layout</code> node itself when the layout also contains explicit <code>tab</code> nodes - they must be placed on each <code>tab</code> node. Doing otherwise is an error, and Zellij will point out which property should be moved where.</p>
 <p>eg.</p>
 <pre><code class="language-javascript">layout {
     tab // a tab with a single pane
@@ -4723,15 +5010,6 @@ keybinds {
 <p><img src="./img/zellij-development.png" alt="zellij-development" /></p>
 <h2 id="your-layout-here"><a class="header" href="#your-layout-here">Your layout here?</a></h2>
 <p>Please make PRs with cool layouts (and screenshots!) to <a href="https://github.com/zellij-org/zellij-org.github.io">our website repo</a> and we'd be happy to include your name and a link to your profile.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="migrating-from-old-yaml-layouts--configs-1"><a class="header" href="#migrating-from-old-yaml-layouts--configs-1">Migrating from old YAML layouts / configs</a></h1>
-<p>Starting from Zellij <code>0.32.0</code>, Zellij uses <a href="https://kdl.dev">KDL</a> layouts as described in these documents.</p>
-<p>Up until this version, Zellij used <code>YAML</code> configuration files.</p>
-<p>As a matter of convenience, when Zellij is run with an old configuration / layout / theme file (either explicitly with a cli flag or if it found the file in the default locations) it will prompt the user and convert that file to the new format.</p>
-<p>This can also be done manually:</p>
-<pre><code>$ zellij convert-config /path/to/my/config.yaml &gt; /path/to/my/config.kdl
-$ zellij convert-layout /path/to/my/layout.yaml &gt; /path/to/my/layout.kdl
-$ zellij convert-theme /path/to/my/theme.yaml &gt; /path/to/my/theme.kdl
-</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="plugins"><a class="header" href="#plugins">Plugins</a></h1>
 <p>Zellij offers a Webassembly / WASI plugin system, allowing plugin developers to develop plugins in many different languages.</p>
 <p>Zellij itself builds its UI from plugins, you can <a href="https://github.com/zellij-org/zellij/tree/main/default-plugins">browse their code</a> for inspiration.</p>
@@ -4814,7 +5092,6 @@ $ zellij convert-theme /path/to/my/theme.yaml &gt; /path/to/my/theme.kdl
 <li><a href="plugin-api-events.html#interceptedkeypress">InterceptedKeyPress</a></li>
 <li><a href="plugin-api-events.html#useraction">UserAction</a></li>
 <li><a href="plugin-api-events.html#panerenderreport">PaneRenderReport</a></li>
-<li><a href="plugin-api-events.html#panerenderreportwithansi">PaneRenderReportWithAnsi</a></li>
 <li><a href="plugin-api-events.html#actioncomplete">ActionComplete</a></li>
 <li><a href="plugin-api-events.html#cwdchanged">CwdChanged</a></li>
 <li><a href="plugin-api-events.html#availablelayoutinfo">AvailableLayoutInfo</a></li>
@@ -4822,6 +5099,10 @@ $ zellij convert-theme /path/to/my/theme.yaml &gt; /path/to/my/theme.kdl
 <li><a href="plugin-api-events.html#highlightclicked">HighlightClicked</a></li>
 <li><a href="plugin-api-events.html#commandchanged">CommandChanged</a></li>
 <li><a href="plugin-api-events.html#hostterminalthemechanged">HostTerminalThemeChanged</a></li>
+<li><a href="plugin-api-events.html#initialkeybinds">InitialKeybinds</a></li>
+<li><a href="plugin-api-events.html#softkeyboardvisibilitychanged">SoftKeyboardVisibilityChanged</a></li>
+<li><a href="plugin-api-events.html#hinttext">HintText</a></li>
+<li><a href="plugin-api-events.html#activepanescroll">ActivePaneScroll</a></li>
 </ul>
 <hr />
 <h2 id="modeupdate"><a class="header" href="#modeupdate"><code>ModeUpdate</code></a></h2>
@@ -4832,6 +5113,7 @@ $ zellij convert-theme /path/to/my/theme.yaml &gt; /path/to/my/theme.kdl
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
 <p><strong>Payload:</strong> <a href="./plugin-api-types.html#modeinfo"><code>ModeInfo</code></a></p>
 <p>Fired when the input mode or relevant session metadata changes. Provides information about the current input mode (e.g., <code>Normal</code>, <code>Locked</code>, <code>Pane</code>, <code>Tab</code>), bound keys, the active theme colors, and the session name.</p>
+<p><strong>Note:</strong> plugins that subscribe to <a href="plugin-api-events.html#initialkeybinds"><code>InitialKeybinds</code></a> receive the keybindings through that event instead, and their <code>ModeUpdate</code> events arrive with an empty <code>keybinds</code> field from then on - this keeps the frequently fired <code>ModeUpdate</code> lightweight.</p>
 <p><strong>Example:</strong></p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -5491,15 +5773,6 @@ fn update(&amp;mut self, event: Event) -&gt; bool {
 <p><strong>Payload:</strong> <code>HashMap&lt;</code><a href="./plugin-api-types.html#paneid"><code>PaneId</code></a><code>, </code><a href="./plugin-api-types.html#panecontents"><code>PaneContents</code></a><code>&gt;</code></p>
 <p>Provides the rendered content of subscribed panes with ANSI escape codes stripped. This event is fired periodically for panes the plugin has subscribed to observe.</p>
 <hr />
-<h2 id="panerenderreportwithansi"><a class="header" href="#panerenderreportwithansi"><code>PaneRenderReportWithAnsi</code></a></h2>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>Event::PaneRenderReportWithAnsi(HashMap&lt;PaneId, PaneContents&gt;)
-<span class="boring">}</span></code></pre></pre>
-<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadPaneContents</code></a></p>
-<p><strong>Payload:</strong> <code>HashMap&lt;PaneId, PaneContents&gt;</code></p>
-<p>Same as <code>PaneRenderReport</code>, but with ANSI escape codes preserved in the content. Useful when the plugin needs to process or display the terminal output with formatting intact.</p>
-<hr />
 <h2 id="actioncomplete"><a class="header" href="#actioncomplete"><code>ActionComplete</code></a></h2>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -5630,6 +5903,7 @@ fn update(&amp;mut self, event: Event) -&gt; bool {
 </span><span class="boring">fn main() {
 </span>Event::CommandChanged(PaneId, Vec&lt;String&gt;, bool, Vec&lt;ClientId&gt;)
 <span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
 <p><strong>Payload:</strong></p>
 <ul>
 <li><a href="./plugin-api-types.html#paneid"><code>PaneId</code></a> - the pane whose running command changed</li>
@@ -5637,7 +5911,7 @@ fn update(&amp;mut self, event: Event) -&gt; bool {
 <li><code>bool</code> - <code>true</code> if the new command is the foreground process in the pane</li>
 <li><code>Vec&lt;ClientId&gt;</code> - client IDs that have this pane focused</li>
 </ul>
-<p>Fired when the foreground command running inside a terminal pane changes (for example when a user runs <code>vim</code> from a shell, or when that program exits and the shell becomes foreground again). No permission is required.</p>
+<p>Fired when the foreground command running inside a terminal pane changes (for example when a user runs <code>vim</code> from a shell, or when that program exits and the shell becomes foreground again).</p>
 <p><strong>Example:</strong></p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -5677,6 +5951,84 @@ fn update(&amp;mut self, event: Event) -&gt; bool {
     }
 }
 <span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="initialkeybinds"><a class="header" href="#initialkeybinds"><code>InitialKeybinds</code></a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>Event::InitialKeybinds(KeybindsVec)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Payload:</strong></p>
+<ul>
+<li><code>KeybindsVec</code> - <code>Vec&lt;(</code><a href="./plugin-api-types.html#inputmode"><code>InputMode</code></a><code>, Vec&lt;(</code><a href="./plugin-api-types.html#keywithmodifier"><code>KeyWithModifier</code></a><code>, Vec&lt;</code><a href="./plugin-api-types.html#action"><code>Action</code></a><code>&gt;)&gt;)&gt;</code> - the keybindings of all input modes</li>
+</ul>
+<p>Fired once when subscribing to this event, and again after every keybinding reconfiguration (eg. through <a href="./plugin-api-commands.html#rebind_keys"><code>rebind_keys</code></a> or a configuration reload). No permission is required.</p>
+<p>Plugins that need the keybindings should prefer this event over reading them from <a href="plugin-api-events.html#modeupdate"><code>ModeUpdate</code></a>: once subscribed, <code>ModeUpdate</code> events arrive with an empty <code>keybinds</code> field, which makes them considerably cheaper.</p>
+<p><strong>Example:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn update(&amp;mut self, event: Event) -&gt; bool {
+    match event {
+        Event::InitialKeybinds(keybinds) =&gt; {
+            self.keybinds = keybinds;
+            true
+        },
+        _ =&gt; false,
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="softkeyboardvisibilitychanged"><a class="header" href="#softkeyboardvisibilitychanged"><code>SoftKeyboardVisibilityChanged</code></a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>Event::SoftKeyboardVisibilityChanged(bool)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
+<p><strong>Payload:</strong></p>
+<ul>
+<li><code>bool</code> - <code>true</code> if the on-screen keyboard is now visible</li>
+</ul>
+<p>Fired when the on-screen (soft) keyboard of the client displaying this plugin is shown or hidden. Only relevant for clients connected through the <a href="./web-client.html">web client</a> on a mobile device. The keyboard can also be shown or hidden by the plugin itself with <a href="./plugin-api-commands.html#set_soft_keyboard"><code>set_soft_keyboard</code></a>.</p>
+<hr />
+<h2 id="hinttext"><a class="header" href="#hinttext"><code>HintText</code></a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>Event::HintText(BTreeMap&lt;usize, StyledText&gt;)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
+<p><strong>Payload:</strong></p>
+<ul>
+<li><code>BTreeMap&lt;usize, </code><a href="./plugin-api-types.html#styledtext"><code>StyledText</code></a><code>&gt;</code> - hint text variants keyed by the display width they are intended for</li>
+</ul>
+<p>Provides the contextual hint text Zellij would like to display (eg. what the user can do with the currently focused pane or stack). Several variants of the same hint are provided, each fitting a different width - the plugin should render the widest variant that fits in the space it has.</p>
+<p><strong>Example:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn update(&amp;mut self, event: Event) -&gt; bool {
+    match event {
+        Event::HintText(variants) =&gt; {
+            self.hint = variants
+                .into_iter()
+                .filter(|(width, _)| *width &lt;= self.available_width)
+                .last()
+                .map(|(_, text)| text);
+            true
+        },
+        _ =&gt; false,
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="activepanescroll"><a class="header" href="#activepanescroll"><code>ActivePaneScroll</code></a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>Event::ActivePaneScroll(Option&lt;(usize, usize)&gt;)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ReadApplicationState</code></a></p>
+<p><strong>Payload:</strong></p>
+<ul>
+<li><code>Option&lt;(usize, usize)&gt;</code> - the scroll position and the total length of the scrollback of the displayed pane, or <code>None</code> if this information is unavailable</li>
+</ul>
+<p>Fired when the scroll position of the single displayed pane changes. This is only sent when the session displays a single pane with a title (ie. when the <a href="./options.html#pane_frame_style"><code>pane_frame_style</code></a> is <code>titles</code> and only one pane is displayed), which is the case where a plugin (eg. a tab-bar) may want to render a scrollbar or a scroll indicator for it.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="plugin-api---commands"><a class="header" href="#plugin-api---commands">Plugin API - Commands</a></h1>
 <p>Zellij exports functions that allow plugins to control Zellij or change its behavior. All functions listed below are available via <code>use zellij_tile::prelude::*;</code>.</p>
 <p>For the complete type definitions referenced below, see the <a href="./plugin-api-types.html">Type Reference</a>. For additional details, see the <a href="https://docs.rs/zellij-tile/latest/zellij_tile/"><code>zellij-tile</code></a> API documentation.</p>
@@ -5826,6 +6178,20 @@ show_cursor(None);
 <p><strong>Parameters:</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>selection_support</code></td><td><code>bool</code></td><td><code>true</code> to enable, <code>false</code> to disable</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h3 id="set_soft_keyboard"><a class="header" href="#set_soft_keyboard"><code>set_soft_keyboard</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn set_soft_keyboard(on: bool)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Show or hide the on-screen (soft) keyboard of the client that is displaying this plugin. This is only relevant for clients connected through the <a href="./web-client.html">web client</a> on a mobile device - other clients ignore it.</p>
+<p>Changes to the visibility of the soft keyboard (including ones the user makes) are reported through the <a href="./plugin-api-events.html#softkeyboardvisibilitychanged"><code>SoftKeyboardVisibilityChanged</code></a> event.</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>on</code></td><td><code>bool</code></td><td><code>true</code> to show the soft keyboard, <code>false</code> to hide it</td></tr>
 </tbody></table>
 </div>
 <hr />
@@ -6164,41 +6530,53 @@ switch_session(None);
 <h3 id="delete_dead_session"><a class="header" href="#delete_dead_session"><code>delete_dead_session</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>fn delete_dead_session(name: &amp;str)
+</span>fn delete_dead_session(name: &amp;str) -&gt; Result&lt;(), String&gt;
 <span class="boring">}</span></code></pre></pre>
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
-<p>Permanently delete a resurrectable (dead) session with the given name.</p>
+<p>Permanently delete a resurrectable (dead) session with the given name. Blocks until the deletion has been acknowledged, so that subsequent session queries reflect it.</p>
 <p><strong>Parameters:</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>name</code></td><td><code>&amp;str</code></td><td>Name of the dead session to delete</td></tr>
 </tbody></table>
 </div>
+<p><strong>Returns:</strong> <code>Result&lt;(), String&gt;</code> - an error message if the session could not be deleted</p>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to return <code>()</code> and was fire-and-forget. Plugins that ignore the result need to handle it (eg. with <code>let _ = ...</code>) in order to compile.</p>
+</blockquote>
 <hr />
 <h3 id="delete_all_dead_sessions"><a class="header" href="#delete_all_dead_sessions"><code>delete_all_dead_sessions</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>fn delete_all_dead_sessions()
+</span>fn delete_all_dead_sessions() -&gt; Result&lt;(), String&gt;
 <span class="boring">}</span></code></pre></pre>
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
-<p>Permanently delete all resurrectable (dead) sessions on this machine.</p>
+<p>Permanently delete all resurrectable (dead) sessions on this machine. Blocks until the deletion has been acknowledged.</p>
+<p><strong>Returns:</strong> <code>Result&lt;(), String&gt;</code> - an error message if the sessions could not be deleted</p>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to return <code>()</code> and was fire-and-forget.</p>
+</blockquote>
 <hr />
 <h3 id="kill_sessions"><a class="header" href="#kill_sessions"><code>kill_sessions</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>fn kill_sessions&lt;S: AsRef&lt;str&gt;&gt;(session_names: &amp;[S])
+</span>fn kill_sessions&lt;S: AsRef&lt;str&gt;&gt;(session_names: &amp;[S]) -&gt; Result&lt;(), String&gt;
 <span class="boring">}</span></code></pre></pre>
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
-<p>Kill one or more sessions by name.</p>
+<p>Kill one or more sessions by name. Blocks until the sessions have been killed.</p>
 <p><strong>Parameters:</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>session_names</code></td><td><code>&amp;[S]</code></td><td>Slice of session names to kill</td></tr>
 </tbody></table>
 </div>
+<p><strong>Returns:</strong> <code>Result&lt;(), String&gt;</code> - an error message if the sessions could not be killed</p>
 <p><strong>Example:</strong></p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>kill_sessions(&amp;["old-session", "temp-session"]);
+</span>kill_sessions(&amp;["old-session", "temp-session"])?;
 <span class="boring">}</span></code></pre></pre>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to return <code>()</code> and was fire-and-forget.</p>
+</blockquote>
 <hr />
 <h3 id="detach-2"><a class="header" href="#detach-2"><code>detach</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -6748,8 +7126,11 @@ layout {
     context: BTreeMap&lt;String, String&gt;,
 ) -&gt; (Option&lt;usize&gt;, Option&lt;PaneId&gt;)
 <span class="boring">}</span></code></pre></pre>
-<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>RunCommands</code></a></p>
 <p>Open a new tab with a command pane running the specified command.</p>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to require <code>ChangeApplicationState</code>.</p>
+</blockquote>
 <p><strong>Parameters:</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>command_to_run</code></td><td><a href="./plugin-api-types.html#commandtorun"><code>CommandToRun</code></a></td><td>Command to execute</td></tr>
@@ -6808,8 +7189,11 @@ layout {
     context: BTreeMap&lt;String, String&gt;,
 ) -&gt; (Option&lt;usize&gt;, Option&lt;PaneId&gt;)
 <span class="boring">}</span></code></pre></pre>
-<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>OpenFiles</code></a></p>
 <p>Open a new tab with an editor pane for the specified file.</p>
+<blockquote>
+<p><strong>Changed in <code>0.45.0</code>:</strong> this function used to require <code>ChangeApplicationState</code>.</p>
+</blockquote>
 <p><strong>Parameters:</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>file_to_open</code></td><td><a href="./plugin-api-types.html#filetoopen"><code>FileToOpen</code></a></td><td>File to open</td></tr>
@@ -6817,6 +7201,43 @@ layout {
 </tbody></table>
 </div>
 <p><strong>Returns:</strong> <code>(Option&lt;usize&gt;, Option&lt;PaneId&gt;)</code> - the tab ID and pane ID</p>
+<hr />
+<h3 id="new_tab_unfocused"><a class="header" href="#new_tab_unfocused"><code>new_tab_unfocused</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn new_tab_unfocused(name: Option&lt;String&gt;, cwd: Option&lt;PathBuf&gt;) -&gt; Option&lt;usize&gt;
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Open a new tab in the background, without changing the focus of any client. To open a new tab and focus it, see <a href="plugin-api-commands.html#new_tab"><code>new_tab</code></a>.</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>Option&lt;String&gt;</code></td><td>Optional name for the new tab</td></tr>
+<tr><td><code>cwd</code></td><td><code>Option&lt;PathBuf&gt;</code></td><td>Optional working directory for the new tab</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns:</strong> <code>Option&lt;usize&gt;</code> - the id of the created tab, if successful</p>
+<hr />
+<h3 id="new_tiled_pane_in_tab"><a class="header" href="#new_tiled_pane_in_tab"><code>new_tiled_pane_in_tab</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn new_tiled_pane_in_tab(tab_position: usize) -&gt; Option&lt;PaneId&gt;
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>OpenTerminalsOrPlugins</code></a></p>
+<p>Open a new tiled pane running the default shell in the tab at the given position.</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tab_position</code></td><td><code>usize</code></td><td>The position of the tab in which to open the pane</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns:</strong> <code>Option&lt;</code><a href="./plugin-api-types.html#paneid"><code>PaneId</code></a><code>&gt;</code> - the id of the created pane, if successful</p>
+<hr />
+<h3 id="new_pane"><a class="header" href="#new_pane"><code>new_pane</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn new_pane()
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Open a new tiled pane running the default shell in the focused tab.</p>
 <hr />
 <h2 id="tab-navigation--management"><a class="header" href="#tab-navigation--management">Tab Navigation &amp; Management</a></h2>
 <hr />
@@ -7111,6 +7532,22 @@ layout {
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
 <p>Move focus to the previous pane in chronological order.</p>
 <hr />
+<h3 id="focus_last_pane"><a class="header" href="#focus_last_pane"><code>focus_last_pane</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn focus_last_pane()
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> None</p>
+<p>Move focus back to the pane that was focused before the currently focused one. Takes floating panes into account, and swaps the pane in place when the focused pane is fullscreen.</p>
+<hr />
+<h3 id="focus_host_session"><a class="header" href="#focus_host_session"><code>focus_host_session</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn focus_host_session()
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>When this session is running inside another Zellij session (see <a href="./nested-sessions.html">nested sessions</a>), move focus up to the host (outer) session. Has no effect when the session is not nested.</p>
+<hr />
 <h3 id="move_focus"><a class="header" href="#move_focus"><code>move_focus</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -7221,6 +7658,19 @@ layout {
 </tbody></table>
 </div>
 <p><strong>Returns:</strong> <code>Result&lt;bool, String&gt;</code> - whether floating panes are now hidden</p>
+<hr />
+<h3 id="toggle_floating_panes"><a class="header" href="#toggle_floating_panes"><code>toggle_floating_panes</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn toggle_floating_panes(tab_id: Option&lt;u64&gt;)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Toggle the visibility of the floating panes in the specified tab, or the active tab if <code>None</code>.</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tab_id</code></td><td><code>Option&lt;u64&gt;</code></td><td>Tab ID, or <code>None</code> for the active tab</td></tr>
+</tbody></table>
+</div>
 <hr />
 <h2 id="pane-manipulation"><a class="header" href="#pane-manipulation">Pane Manipulation</a></h2>
 <hr />
@@ -7342,6 +7792,14 @@ layout {
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
 <p>Toggle the focused pane to be fullscreen or normal sized.</p>
 <hr />
+<h3 id="toggle_focus_no_ui_fullscreen"><a class="header" href="#toggle_focus_no_ui_fullscreen"><code>toggle_focus_no_ui_fullscreen</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn toggle_focus_no_ui_fullscreen()
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Toggle the focused pane to be fullscreen or normal sized, with the fullscreen pane covering the entire display - including the space normally occupied by the UI bars (eg. the tab-bar and status-bar). Unlike <a href="plugin-api-commands.html#toggle_focus_fullscreen"><code>toggle_focus_fullscreen</code></a>, which keeps them visible.</p>
+<hr />
 <h3 id="toggle_pane_id_fullscreen"><a class="header" href="#toggle_pane_id_fullscreen"><code>toggle_pane_id_fullscreen</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -7362,6 +7820,24 @@ layout {
 <span class="boring">}</span></code></pre></pre>
 <p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
 <p>Toggle the UI pane frames on or off globally.</p>
+<hr />
+<h3 id="set_pane_frame_style"><a class="header" href="#set_pane_frame_style"><code>set_pane_frame_style</code></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn set_pane_frame_style(pane_frame_style: PaneFrameStyle)
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Required Permission:</strong> <a href="./plugin-api-permissions.html"><code>ChangeApplicationState</code></a></p>
+<p>Set the style of the pane frames for the whole session (see the <a href="./options.html#pane_frame_style"><code>pane_frame_style</code></a> option).</p>
+<p><strong>Parameters:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>pane_frame_style</code></td><td><a href="./plugin-api-types.html#paneframestyle"><code>PaneFrameStyle</code></a></td><td><code>Full</code>, <code>Titles</code> or <code>None</code></td></tr>
+</tbody></table>
+</div>
+<p><strong>Example:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>set_pane_frame_style(PaneFrameStyle::Titles);
+<span class="boring">}</span></code></pre></pre>
 <hr />
 <h3 id="toggle_pane_embed_or_eject"><a class="header" href="#toggle_pane_embed_or_eject"><code>toggle_pane_embed_or_eject</code></a></h3>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -8722,6 +9198,8 @@ run_action(
 <li><a href="plugin-api-types.html#hostterminalthememode">HostTerminalThemeMode</a></li>
 <li><a href="plugin-api-types.html#clientinfo">ClientInfo</a></li>
 <li><a href="plugin-api-types.html#modeinfo">ModeInfo</a></li>
+<li><a href="plugin-api-types.html#paneframestyle">PaneFrameStyle</a></li>
+<li><a href="plugin-api-types.html#styledtext">StyledText</a></li>
 <li><a href="plugin-api-types.html#mouse">Mouse</a></li>
 <li><a href="plugin-api-types.html#copydestination">CopyDestination</a></li>
 <li><a href="plugin-api-types.html#permissiontype">PermissionType</a></li>
@@ -9119,6 +9597,7 @@ open_command_pane(cmd, BTreeMap::new());
     pub lines_below_viewport: Vec&lt;String&gt;,
     pub viewport: Vec&lt;String&gt;,
     pub selected_text: Option&lt;SelectedText&gt;,
+    pub cursor: Option&lt;(usize, usize)&gt;,
 }
 <span class="boring">}</span></code></pre></pre>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -9126,6 +9605,7 @@ open_command_pane(cmd, BTreeMap::new());
 <tr><td><code>lines_below_viewport</code></td><td><code>Vec&lt;String&gt;</code></td><td>Lines below the current viewport (only populated if full scrollback is requested)</td></tr>
 <tr><td><code>viewport</code></td><td><code>Vec&lt;String&gt;</code></td><td>Currently visible lines</td></tr>
 <tr><td><code>selected_text</code></td><td><code>Option&lt;SelectedText&gt;</code></td><td>Currently selected text range, if any</td></tr>
+<tr><td><code>cursor</code></td><td><code>Option&lt;(usize, usize)&gt;</code></td><td>Cursor position (x, y) inside the viewport, if visible</td></tr>
 </tbody></table>
 </div>
 <p><strong>Note:</strong> <code>lines_above_viewport</code> and <code>lines_below_viewport</code> are only populated when explicitly requested (e.g., with <code>get_full_scrollback: true</code> in <code>get_pane_scrollback</code>). This is for performance reasons.</p>
@@ -9409,6 +9889,13 @@ open_command_pane(cmd, BTreeMap::new());
     pub web_server_ip: Option&lt;IpAddr&gt;,
     pub web_server_port: Option&lt;u16&gt;,
     pub web_server_capability: Option&lt;bool&gt;,
+    pub pane_frame_style: Option&lt;PaneFrameStyle&gt;,
+    pub session_dimmed: Option&lt;bool&gt;,
+    pub session_ancestry: Vec&lt;String&gt;,
+    pub host_fullscreen: Option&lt;bool&gt;,
+    pub nested_ascend_keys: Vec&lt;KeyWithModifier&gt;,
+    pub session_ascended: Option&lt;bool&gt;,
+    pub nested_descend_keys: Vec&lt;KeyWithModifier&gt;,
 }
 <span class="boring">}</span></code></pre></pre>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -9427,6 +9914,46 @@ open_command_pane(cmd, BTreeMap::new());
 <tr><td><code>web_server_ip</code></td><td><code>Option&lt;IpAddr&gt;</code></td><td>Configured web server IP</td></tr>
 <tr><td><code>web_server_port</code></td><td><code>Option&lt;u16&gt;</code></td><td>Configured web server port</td></tr>
 <tr><td><code>web_server_capability</code></td><td><code>Option&lt;bool&gt;</code></td><td>Whether web server functionality is available</td></tr>
+<tr><td><code>pane_frame_style</code></td><td><code>Option&lt;</code><a href="plugin-api-types.html#paneframestyle"><code>PaneFrameStyle</code></a><code>&gt;</code></td><td>The frame style currently used in this session</td></tr>
+<tr><td><code>session_dimmed</code></td><td><code>Option&lt;bool&gt;</code></td><td>Whether this session's UI is dimmed because focus was handed to a nested session</td></tr>
+<tr><td><code>session_ancestry</code></td><td><code>Vec&lt;String&gt;</code></td><td>The names of the sessions this session is nested in, outermost first</td></tr>
+<tr><td><code>host_fullscreen</code></td><td><code>Option&lt;bool&gt;</code></td><td>Whether this session's pane is fullscreen inside its host session</td></tr>
+<tr><td><code>nested_ascend_keys</code></td><td><code>Vec&lt;</code><a href="plugin-api-types.html#keywithmodifier"><code>KeyWithModifier</code></a><code>&gt;</code></td><td>Keys bound to <code>FocusHostSession</code></td></tr>
+<tr><td><code>session_ascended</code></td><td><code>Option&lt;bool&gt;</code></td><td>Whether focus has been handed back up to the host session</td></tr>
+<tr><td><code>nested_descend_keys</code></td><td><code>Vec&lt;</code><a href="plugin-api-types.html#keywithmodifier"><code>KeyWithModifier</code></a><code>&gt;</code></td><td>Keys bound to <code>FocusGuestSession</code></td></tr>
+</tbody></table>
+</div>
+<p>The last seven fields relate to <a href="./nested-sessions.html">nested sessions</a> and to the <a href="./options.html#pane_frame_style">pane frame style</a>. They allow plugins that render session chrome (eg. the tab-bar and status-bar) to indicate where the session sits in the nesting hierarchy and how to leave it.</p>
+<hr />
+<h2 id="paneframestyle"><a class="header" href="#paneframestyle"><code>PaneFrameStyle</code></a></h2>
+<p>The style used to render pane frames in the session. See the <a href="./options.html#pane_frame_style"><code>pane_frame_style</code></a> option.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum PaneFrameStyle {
+    Full,
+    Titles,
+    None,
+}
+<span class="boring">}</span></code></pre></pre>
+<div class="table-wrapper"><table><thead><tr><th>Variant</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Full</code></td><td>A full border around each pane</td></tr>
+<tr><td><code>Titles</code></td><td>A single title line above each pane (default)</td></tr>
+<tr><td><code>None</code></td><td>No pane frames</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="styledtext"><a class="header" href="#styledtext"><code>StyledText</code></a></h2>
+<p>A piece of text with a set of highlighted (emphasized) character indices. Used, among others, as the payload of the <a href="./plugin-api-events.html#hinttext"><code>HintText</code></a> event. It can be turned into a <code>Text</code> UI component with <code>Text::from(styled_text)</code>.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct StyledText {
+    pub text: String,
+    pub indices: Vec&lt;Vec&lt;usize&gt;&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>text</code></td><td><code>String</code></td><td>The text itself</td></tr>
+<tr><td><code>indices</code></td><td><code>Vec&lt;Vec&lt;usize&gt;&gt;</code></td><td>Character indices to emphasize, grouped by <a href="./plugin-ui-rendering.html">color index</a></td></tr>
 </tbody></table>
 </div>
 <hr />
@@ -9437,6 +9964,8 @@ open_command_pane(cmd, BTreeMap::new());
 </span>pub enum Mouse {
     ScrollUp(usize),
     ScrollDown(usize),
+    ScrollLeft(usize),
+    ScrollRight(usize),
     LeftClick(isize, usize),
     RightClick(isize, usize),
     Hold(isize, usize),
@@ -9447,6 +9976,8 @@ open_command_pane(cmd, BTreeMap::new());
 <div class="table-wrapper"><table><thead><tr><th>Variant</th><th>Parameters</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>ScrollUp(n)</code></td><td><code>usize</code> - number of lines</td><td>Mouse wheel scrolled up</td></tr>
 <tr><td><code>ScrollDown(n)</code></td><td><code>usize</code> - number of lines</td><td>Mouse wheel scrolled down</td></tr>
+<tr><td><code>ScrollLeft(n)</code></td><td><code>usize</code> - number of columns</td><td>Mouse wheel scrolled left (horizontal scroll)</td></tr>
+<tr><td><code>ScrollRight(n)</code></td><td><code>usize</code> - number of columns</td><td>Mouse wheel scrolled right (horizontal scroll)</td></tr>
 <tr><td><code>LeftClick(line, col)</code></td><td><code>isize, usize</code> - line and column</td><td>Left mouse button clicked</td></tr>
 <tr><td><code>RightClick(line, col)</code></td><td><code>isize, usize</code> - line and column</td><td>Right mouse button clicked</td></tr>
 <tr><td><code>Hold(line, col)</code></td><td><code>isize, usize</code> - line and column</td><td>Mouse button held (drag)</td></tr>
@@ -9608,6 +10139,17 @@ open_command_pane(cmd, BTreeMap::new());
 <tr><td><code>NextSwapLayout</code></td><td>Switch to next swap layout</td></tr>
 <tr><td><code>LaunchOrFocusPlugin { plugin, .. }</code></td><td>Launch or focus a plugin</td></tr>
 <tr><td><code>RenameSession { name }</code></td><td>Rename the current session</td></tr>
+<tr><td><code>FocusLastPane</code></td><td>Focus the previously focused pane</td></tr>
+<tr><td><code>ToggleFocusNoUiFullscreen</code></td><td>Toggle fullscreen for the focused pane, covering the UI bars as well</td></tr>
+<tr><td><code>SetPaneFrameStyle { pane_frame_style }</code></td><td>Set the <a href="plugin-api-types.html#paneframestyle">pane frame style</a> for the session</td></tr>
+<tr><td><code>AreFloatingPanesVisible</code></td><td>Query whether floating panes are visible</td></tr>
+<tr><td><code>SetDarkTheme</code> / <code>SetLightTheme</code> / <code>ToggleTheme</code></td><td>Switch between the configured dark and light themes</td></tr>
+<tr><td><code>FocusHostSession</code></td><td><a href="./nested-sessions.html">Nested sessions</a>: move focus to the host session</td></tr>
+<tr><td><code>FocusGuestSession</code></td><td><a href="./nested-sessions.html">Nested sessions</a>: descend into the guest session in the focused pane</td></tr>
+<tr><td><code>ToggleHostFullscreen</code></td><td><a href="./nested-sessions.html">Nested sessions</a>: toggle this session's pane fullscreen in its host</td></tr>
+<tr><td><code>ScrollToPreviousPrompt</code> / <code>ScrollToNextPrompt</code></td><td>Jump between shell prompts in the scrollback (<a href="./shell-integration.html">OSC 133</a>)</td></tr>
+<tr><td><code>SelectCommandAtScrollPosition</code></td><td>Select the command and output at the scroll position (<a href="./shell-integration.html">OSC 133</a>)</td></tr>
+<tr><td><code>CopyLastCommandOutput</code></td><td>Copy the last command's output to the clipboard (<a href="./shell-integration.html">OSC 133</a>)</td></tr>
 </tbody></table>
 </div>
 <p>For the complete list, see the <a href="https://github.com/zellij-org/zellij/blob/main/zellij-utils/src/input/actions.rs">source code</a>.</p>
@@ -9654,12 +10196,17 @@ open_command_pane(cmd, BTreeMap::new());
     InterceptedKeyPress,
     UserAction,
     PaneRenderReport,
-    PaneRenderReportWithAnsi,
     ActionComplete,
     CwdChanged,
     AvailableLayoutInfo,
     PluginConfigurationChanged,
     HighlightClicked,
+    CommandChanged,
+    InitialKeybinds,
+    HostTerminalThemeChanged,
+    SoftKeyboardVisibilityChanged,
+    HintText,
+    ActivePaneScroll,
 }
 <span class="boring">}</span></code></pre></pre>
 <p>See <a href="./plugin-api-events.html">Events</a> for details on each event and its payload.</p>
@@ -9674,7 +10221,7 @@ Plugins who want to listen to these events or use these commands should prompt t
 <p>Change Zellij state (Panes, Tabs and UI)</p>
 <h3 id="openfiles"><a class="header" href="#openfiles">OpenFiles</a></h3>
 <p>Open files (eg. for editing)</p>
-<h3 id="runcommand"><a class="header" href="#runcommand">RunCommand</a></h3>
+<h3 id="runcommands"><a class="header" href="#runcommands">RunCommands</a></h3>
 <p>Run commands in panes or silently</p>
 <h3 id="openterminalsorplugins"><a class="header" href="#openterminalsorplugins">OpenTerminalsOrPlugins</a></h3>
 <p>Start new terminals and plugins</p>
@@ -9689,7 +10236,7 @@ Plugins who want to listen to these events or use these commands should prompt t
 <h3 id="interceptinput"><a class="header" href="#interceptinput">InterceptInput</a></h3>
 <p>Intercept user input (eg. keypresses), having all of this input sent to the plugin instead.</p>
 <h3 id="readpanecontents"><a class="header" href="#readpanecontents">ReadPaneContents</a></h3>
-<p>Read the rendered contents of terminal panes. Required for subscribing to <code>PaneRenderReport</code> and <code>PaneRenderReportWithAnsi</code> events.</p>
+<p>Read the rendered contents of terminal panes. Required for subscribing to the <code>PaneRenderReport</code> event.</p>
 <h3 id="runactionsasuser"><a class="header" href="#runactionsasuser">RunActionsAsUser</a></h3>
 <p>Execute Zellij actions as if they were performed by the user. Required for the <code>run_action</code> plugin API command.</p>
 <h3 id="writetoclipboard"><a class="header" href="#writetoclipboard">WriteToClipboard</a></h3>
@@ -9757,7 +10304,7 @@ register_worker!(
 <h2 id="sending-messages-to-workers"><a class="header" href="#sending-messages-to-workers">Sending messages to workers</a></h2>
 <p>When a plugin (or another worker) wishes to send messages to a worker, they use the <a href="./plugin-api-commands.html#post_message_to"><code>post_message_to</code></a> plugin command. They should use the worker namespace used when registering the worker, eg. <code>post_message_to("test", ...)</code> for the <code>test_worker</code> example above.</p>
 <h2 id="sending-messages-from-workers-to-plugins"><a class="header" href="#sending-messages-from-workers-to-plugins">Sending messages from workers to plugins</a></h2>
-<p>When a worker wishes to send a message to a plugin, they use the <a href="./plugin-api-commands.html#post_message_to_plugin"><code>post_message_to_plugin</code></a> command. This message will trigger the plugin's <a href="./plugin-api-lifecycle.html#update">update</a> method with a <a href="./plugin-api-events.html#CustomMessage"><code>CustomMessage</code></a> event. Be sure to <a href="./plugin-api-commands.html#subscribe"><code>subscribe</code></a> to it beforehand!</p>
+<p>When a worker wishes to send a message to a plugin, they use the <a href="./plugin-api-commands.html#post_message_to_plugin"><code>post_message_to_plugin</code></a> command. This message will trigger the plugin's <a href="./plugin-lifecycle.html#update">update</a> method with a <a href="./plugin-api-events.html#custommessage"><code>CustomMessage</code></a> event. Be sure to <a href="./plugin-api-commands.html#subscribe"><code>subscribe</code></a> to it beforehand!</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pipes-for-communicating-with-and-between-plugins"><a class="header" href="#pipes-for-communicating-with-and-between-plugins">Pipes for Communicating with and Between plugins</a></h1>
 <h2 id="what-are-pipes"><a class="header" href="#what-are-pipes">What are pipes?</a></h2>
 <p>A Zellij pipe is a unidirectional communication channel to and/or from a plugin. This communication channel is used to send one or more messages containing arbitrary serializable text, similar to how pipes work in most shells.</p>
@@ -9851,6 +10398,8 @@ layout {
 <p><em>Please check the example repository for the full version</em></p>
 <p>This layout is intended to be loaded into Zellij (either in a running session or in a new session), to load the user's default <code>$EDITOR</code> to the <code>main.rs</code> and <code>Cargo.toml</code> files, show the rendered plugin in a separate pane as well as the compilation and plugin hot-reload logs.</p>
 <p>Zellij plugins can of course be developed out of the terminal as well.</p>
+<h2 id="building-and-testing-on-native-targets"><a class="header" href="#building-and-testing-on-native-targets">Building and testing on native targets</a></h2>
+<p>Since <code>0.45.0</code>, the host functions the plugin API is built on are compiled only for <code>wasm32</code> targets, with a no-op stub used elsewhere. Plugin crates can therefore be compiled, unit-tested and type-checked on the native target (eg. with <code>cargo test</code>) without a WebAssembly toolchain - keeping in mind that API calls do nothing there.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="plugin-lifecycle-1"><a class="header" href="#plugin-lifecycle-1">Plugin Lifecycle</a></h1>
 <p>Zellij provides the <a href="https://docs.rs/zellij-tile/latest/zellij_tile/"><code>zellij-tile</code></a> crate to plugins to facilitate development.</p>
 <p>The <code>zellij-tile</code> crate provides the <code>ZellijPlugin</code> trait:</p>
@@ -9939,6 +10488,20 @@ print_ribbon_with_coordinates(Text::new("ribbon 4").color_range(3, 1..5), 36, 0,
     NestedListItem::new("item 4 is just another item, really").indent(1).color_range(0, ..).color_range(1, 1..15).color_indices(1, vec![8]),
 ], 1, 1, None, None);
 <span class="boring">}</span></code></pre></pre>
+<p>In addition to <code>color_range</code> and <code>color_indices</code>, which take character ranges and indices, <code>NestedListItem</code> provides convenience methods that take the text to color rather than its coordinates:</p>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>color_substring(color_idx, substring)</code></td><td>Color the first occurrence of <code>substring</code></td></tr>
+<tr><td><code>color_nth_substring(color_idx, substring, n)</code></td><td>Color the <code>n</code>th occurrence of <code>substring</code></td></tr>
+<tr><td><code>color_last_substring(color_idx, substring)</code></td><td>Color the last occurrence of <code>substring</code></td></tr>
+<tr><td><code>color_all(color_idx)</code></td><td>Color the whole item</td></tr>
+<tr><td><code>success_color_last_substring(substring)</code></td><td>Color the last occurrence of <code>substring</code> with the theme's "success" color</td></tr>
+<tr><td><code>error_color_last_substring(substring)</code></td><td>Color the last occurrence of <code>substring</code> with the theme's "error" color</td></tr>
+</tbody></table>
+</div>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>NestedListItem::new("my-session (2 tabs)").color_substring(0, "my-session").success_color_last_substring("(2 tabs)")
+<span class="boring">}</span></code></pre></pre>
 <h4 id="text"><a class="header" href="#text">Text</a></h4>
 <p><img src="img/text-ui-component.png" alt="text" /></p>
 <p>While this element can be rendered on its own, it's mainly used inside other elements for styling.</p>
@@ -9950,6 +10513,12 @@ A <code>Text</code> element can also have indices. These indices can be one of 4
 </span>let text = Text::new("foo bar baz").selected().color_range(0, 0..=2).color_range(1, 3..=5).color_range(2, 7..=9);
 print_text_with_coordinates(text, 0, 0, None, None);
 <span class="boring">}</span></code></pre></pre>
+<p>A <code>Text</code> element can also be marked as <code>disabled()</code>, which renders it dimmed to indicate that the thing it represents is currently unavailable:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>print_text(Text::new("Not available right now").disabled());
+<span class="boring">}</span></code></pre></pre>
+<p>A <a href="./plugin-api-types.html#styledtext"><code>StyledText</code></a> (received for example through the <a href="./plugin-api-events.html#hinttext"><code>HintText</code></a> event) can be turned into a <code>Text</code> element with <code>Text::from(styled_text)</code>, preserving its emphasized indices.</p>
 <h3 id="the-protocol"><a class="header" href="#the-protocol">The Protocol</a></h3>
 <p><em>Note: This section discusses the private DCS ANSI serialization protocol used to represent the above components. It could be of interest to SDK authors, but plugin developers are encouraged to use the SDK abstractions instead.</em></p>
 <p>An example component can look like this: (<code>&lt;ESC&gt;</code>, represents the escape character)</p>
@@ -10051,6 +10620,8 @@ Example:</p>
 <li><strong>View session metadata</strong> - See tab counts, connected clients, and other session information</li>
 <li><strong>Web sharing controls</strong> - Start/stop the web server and manage sharing settings from within the session manager</li>
 </ol>
+<h2 id="dismissing-the-session-manager"><a class="header" href="#dismissing-the-session-manager">Dismissing the session manager</a></h2>
+<p>Pressing <code>Esc</code> or <code>Ctrl c</code> closes the session manager rather than hiding it. It also closes itself after switching to another session.</p>
 <h2 id="contract-4"><a class="header" href="#contract-4">Contract</a></h2>
 <p>Zellij loads the session-manager as a floating pane. Plugins implementing this alias should expect to be loaded in floating mode and should provide a navigable interface for the features listed above.</p>
 <p>The session-manager is a built-in plugin and can be replaced by specifying a different plugin URL for the <code>session-manager</code> alias in the <a href="./configuration.html">configuration</a>.</p>
@@ -10136,6 +10707,7 @@ Zellij includes built-in session resurrection capabilities. This means that by d
 <p>These exited resurrectable sessions can be listed through the CLI or the built-in <code>session-manager</code>. They can be resurrected through the CLI by attaching to them or through the <code>session-manager</code> by selecting them in the <code>EXITED</code> section.</p>
 <h2 id="what-is-resurrected-and-how-to-configure"><a class="header" href="#what-is-resurrected-and-how-to-configure">What is Resurrected and how to Configure</a></h2>
 <p>By default, Zellij serializes the session layout (panes and tabs) and the command running in each pane (it will re-run them in command panes). Through configuration it's possible to have Zellij also serialize and resurrect the pane viewport and scrollback.</p>
+<p>Tabs are serialized in the order in which they appear in the session, so tabs that were reordered by the user keep their position when the session is resurrected.</p>
 <p>Zellij does not immediately run resurrected commands, but rather places them behind a "Press <code>ENTER</code> to run..." banner so as to prevent uncomfortable accidents with things like <code>rm -rf</code>.</p>
 <h3 id="session_serialization-1"><a class="header" href="#session_serialization-1"><code>session_serialization</code></a></h3>
 <p>To disable session serialization (and thus also resurrection), set <code>session_serialization false</code> in the <a href="./configuration.html">config</a>.</p>
@@ -10158,6 +10730,71 @@ Zellij includes built-in session resurrection capabilities. This means that by d
 <p>Resurrectable sessions can be permanently deleted with the <code>zellij delete-session</code> or <code>zellij delete-all-sessions</code> CLI commands. They can also be deleted from the <code>session-manager</code>.</p>
 <h2 id="session-files-in-the-cache"><a class="header" href="#session-files-in-the-cache">Session files in the cache</a></h2>
 <p>Zellij serializes the session data into a <a href="./layouts.html">layout</a> every 1 second and saves it to the system's cache folder. These layouts can later be examined, altered and even shared as is across machines. They can be loaded with <code>zellij --layout session-layout.kdl</code> just like any other layout. They are intentionally Human readable to facilitate their re-use.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="nested-sessions"><a class="header" href="#nested-sessions">Nested Sessions</a></h1>
+<p>Since version <code>0.45.0</code>, running Zellij inside a Zellij pane (for example after <code>ssh</code>-ing into a remote machine and starting Zellij there) is a first-class workflow.</p>
+<p>The inner session (the <strong>guest</strong>) announces itself to the outer session (the <strong>host</strong>) through an in-band protocol. Guest sessions detect that they are nested by way of the <code>ZELLIJ</code> environment variable, which Zellij sets in all the panes it opens.</p>
+<p><strong>Note:</strong> attaching to a session from inside itself is still not possible, and remains blocked.</p>
+<h2 id="what-happens-when-focusing-a-nested-session"><a class="header" href="#what-happens-when-focusing-a-nested-session">What happens when focusing a nested session</a></h2>
+<p>The behavior of the host session when its user focuses a pane containing a guest session is controlled by the <a href="./options.html#nested_session_handling"><code>nested_session_handling</code></a> configuration option:</p>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>Behavior</th></tr></thead><tbody>
+<tr><td><code>ask</code> (default)</td><td>A prompt is displayed when focusing the pane, offering either to zoom into the nested session or to take control of it</td></tr>
+<tr><td><code>fullscreen</code></td><td>The pane containing the nested session is always zoomed into on focus</td></tr>
+<tr><td><code>descend</code></td><td>Input is always routed to the nested session on focus</td></tr>
+<tr><td><code>never</code></td><td>Nothing happens automatically</td></tr>
+</tbody></table>
+</div>
+<pre><code class="language-javascript">nested_session_handling "descend"
+</code></pre>
+<h2 id="descending-and-ascending"><a class="header" href="#descending-and-ascending">Descending and ascending</a></h2>
+<p>When "descending" into a guest session, keyboard and mouse input are routed to the guest rather than being handled by the host. To make this obvious, the host's own chrome (its tab-bar, status-bar and pane frames) is dimmed while descended.</p>
+<p>To go back up to the host session ("ascend"), either click on the dimmed host chrome or use the host's keybinding for it.</p>
+<p>The relevant actions, all bindable in the <a href="./keybindings.html"><code>keybinds</code></a> block:</p>
+<div class="table-wrapper"><table><thead><tr><th>Action</th><th>Default binding</th><th>Behavior</th></tr></thead><tbody>
+<tr><td><a href="./keybindings-possible-actions.html#focusguestsession"><code>FocusGuestSession</code></a></td><td><code>[</code> in <code>session</code> mode</td><td>Descend into the guest session in the focused pane</td></tr>
+<tr><td><a href="./keybindings-possible-actions.html#focushostsession"><code>FocusHostSession</code></a></td><td><code>]</code> in <code>session</code> mode</td><td>Return focus to the host session</td></tr>
+<tr><td><a href="./keybindings-possible-actions.html#togglehostfullscreen"><code>ToggleHostFullscreen</code></a></td><td><code>f</code> in <code>session</code> mode</td><td>Toggle the fullscreen state of this session's pane inside the host session</td></tr>
+</tbody></table>
+</div>
+<p>Note that <code>FocusHostSession</code> and <code>ToggleHostFullscreen</code> are issued from within the guest session, and act on the host containing it. They have no effect in a session that is not nested.</p>
+<p>These actions are also available through the CLI and the <a href="./plugin-api-commands.html">plugin API</a> (<code>focus_host_session</code>).</p>
+<h2 id="other-behaviors-that-are-aware-of-nesting"><a class="header" href="#other-behaviors-that-are-aware-of-nesting">Other behaviors that are aware of nesting</a></h2>
+<ul>
+<li>Desktop notifications emitted by panes in a guest session are forwarded up through the host to the terminal (see <a href="./compatibility.html#desktop-notifications">desktop notifications</a>).</li>
+<li>Terminal focus in/out events received by the host are forwarded to the guest, and from there to panes that requested them.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="shell-integration-osc-133"><a class="header" href="#shell-integration-osc-133">Shell Integration (OSC 133)</a></h1>
+<p>Since version <code>0.45.0</code>, Zellij understands the OSC 133 "semantic prompt" escape sequences. When the shell running in a pane emits them, Zellij knows where each prompt starts, where the command that was typed begins and ends, where its output begins and ends, and what exit status it had.</p>
+<p>There is nothing to configure on the Zellij side: the marks are parsed whenever the shell emits them.</p>
+<h2 id="getting-the-shell-to-emit-osc-133"><a class="header" href="#getting-the-shell-to-emit-osc-133">Getting the shell to emit OSC 133</a></h2>
+<p>The sequences Zellij looks for are:</p>
+<div class="table-wrapper"><table><thead><tr><th>Sequence</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>OSC 133 ; A</code></td><td>Start of the prompt</td></tr>
+<tr><td><code>OSC 133 ; P</code></td><td>Start of the prompt (with properties)</td></tr>
+<tr><td><code>OSC 133 ; B</code></td><td>End of the prompt / start of the typed command</td></tr>
+<tr><td><code>OSC 133 ; I</code></td><td>Start of the typed command</td></tr>
+<tr><td><code>OSC 133 ; C</code></td><td>Start of the command output</td></tr>
+<tr><td><code>OSC 133 ; D ; &lt;exit-status&gt;</code></td><td>End of the command, with its exit status</td></tr>
+</tbody></table>
+</div>
+<p><code>fish</code> emits these by default. <code>bash</code> and <code>zsh</code> need a shell integration snippet - the ones distributed for other terminals (eg. kitty, WezTerm, VS Code) emit the same standard sequences and work with Zellij as well.</p>
+<h2 id="what-it-enables"><a class="header" href="#what-it-enables">What it enables</a></h2>
+<h3 id="selecting-a-command-and-its-output"><a class="header" href="#selecting-a-command-and-its-output">Selecting a command and its output</a></h3>
+<p>Triple-clicking inside output that was marked with OSC 133 selects the whole command along with its output, rather than the logical line under the cursor. This can be turned off with the <a href="./options.html#osc133_command_selection"><code>osc133_command_selection</code></a> option (it is on by default), in which case triple-click selects the logical line as before.</p>
+<p>The same can be done from the keyboard with the <a href="./keybindings-possible-actions.html#selectcommandatscrollposition"><code>SelectCommandAtScrollPosition</code></a> action (bound to <code>m</code> in <code>scroll</code> and <code>search</code> modes), which selects the command and output at the current scroll position.</p>
+<h3 id="navigating-the-scrollback-by-prompt"><a class="header" href="#navigating-the-scrollback-by-prompt">Navigating the scrollback by prompt</a></h3>
+<p>Instead of scrolling line by line, the scrollback can be jumped through prompt by prompt:</p>
+<div class="table-wrapper"><table><thead><tr><th>Action</th><th>Default binding</th></tr></thead><tbody>
+<tr><td><a href="./keybindings-possible-actions.html#scrolltopreviousprompt"><code>ScrollToPreviousPrompt</code></a></td><td><code>[</code> in <code>scroll</code> and <code>search</code> modes</td></tr>
+<tr><td><a href="./keybindings-possible-actions.html#scrolltonextprompt"><code>ScrollToNextPrompt</code></a></td><td><code>]</code> in <code>scroll</code> and <code>search</code> modes</td></tr>
+</tbody></table>
+</div>
+<h3 id="copying-the-output-of-the-last-command"><a class="header" href="#copying-the-output-of-the-last-command">Copying the output of the last command</a></h3>
+<p>The <a href="./keybindings-possible-actions.html#copylastcommandoutput"><code>CopyLastCommandOutput</code></a> action (bound to <code>c</code> in <code>scroll</code> mode) copies the output of the last command run in the focused pane to the clipboard, using the OSC 133 marks to find its boundaries. The copied region is briefly flashed in the pane.</p>
+<p>Since the marks include the exit status of each command, Zellij is also able to indicate which commands failed (eg. in the titles of collapsed panes in a stack).</p>
+<h2 id="word-selection"><a class="header" href="#word-selection">Word selection</a></h2>
+<p>Not strictly part of OSC 133, but related to selecting text: the characters that terminate a word when double-clicking can be configured with the <a href="./options.html#word_separators"><code>word_separators</code></a> option. Whitespace always separates words. The default is:</p>
+<pre><code class="language-javascript">word_separators "[]{}&lt;&gt;()"
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="web-client"><a class="header" href="#web-client">Web Client</a></h1>
 <p>Zellij can also work in the browser, allowing users to share existing sessions and start new ones. This is useful for easy and secure remote access, and can also allow users to forgo their terminal emulator entirely if they wish.</p>
 <p>This is done through a built-in webserver (turned off by default) that provides built-in authentication and session-management.</p>
@@ -10288,17 +10925,52 @@ enforce_https_on_localhost true // whether to enforce an https certificate being
 </ul>
 <pre><code>$ zellij web --status --timeout 5 --ip 0.0.0.0 --port 443
 </code></pre>
+<h2 id="installing-as-an-app-pwa"><a class="header" href="#installing-as-an-app-pwa">Installing as an app (PWA)</a></h2>
+<p>The web client is a Progressive Web App: it serves a web manifest, icons and the relevant iOS meta tags, and so can be installed as a standalone application from Chromium-based browsers, Firefox, Safari and iOS.</p>
+<p>Once installed, it opens in its own window without browser chrome. This works behind a reverse proxy as well, including when the client is served under a <a href="web-client.html#base_url"><code>base_url</code></a> prefix. There is nothing to configure.</p>
 <h2 id="mobile-support"><a class="header" href="#mobile-support">Mobile Support</a></h2>
-<p>The web client supports mobile browsers. Two behaviors are specifically adapted for mobile devices:</p>
+<p>The web client detects mobile browsers (through a coarse pointer and user-agent detection) and switches to a dedicated mobile interface automatically. There is nothing to configure.</p>
+<p>The mobile interface includes:</p>
 <ol>
 <li><strong>Viewport Resizing</strong>: The terminal automatically resizes to match the real mobile viewport, accounting for dynamic changes such as the address bar showing/hiding and the on-screen keyboard appearing/disappearing.</li>
 <li><strong>Touch Scroll</strong>: Vertical touch swipes are converted to terminal scroll events, allowing natural scrolling through terminal output.</li>
+<li><strong>Touch chrome</strong>: touch-friendly UI controls replacing the keyboard-driven ones.</li>
+<li><strong>Pane and tab pickers</strong>: for switching between panes and tabs without keybindings.</li>
+<li><strong>On-screen keyboard</strong>: including keys that physical mobile keyboards lack (this can also be shown and hidden by plugins).</li>
+<li><strong>Panning and a fit toggle</strong>: to move around a session larger than the screen, or to fit it to the screen.</li>
+<li><strong>Single pane fullscreen</strong>: focusing on one pane at a time, which is often the only practical layout on a phone.</li>
+<li><strong>Light theme support</strong>: following the device color scheme.</li>
+<li><strong>Welcome screen</strong>: rendered client-side when connecting without an existing session.</li>
 </ol>
 <h2 id="this-feature-can-optionally-be-disabled-at-compile-time"><a class="header" href="#this-feature-can-optionally-be-disabled-at-compile-time">This feature can optionally be disabled at compile-time</a></h2>
 <p>For those who are averse to this feature (even when it's disabled - which is the default), Zellij can be compiled completely without this feature or its dependencies by removing the <code>web-server-capability</code> compile-time flag. For convenience, Zellij also provides an additional pre-built binary compiled without this flag called <code>zellij-no-web</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="compatibility"><a class="header" href="#compatibility">Compatibility</a></h1>
 <h2 id="issues"><a class="header" href="#issues">Issues</a></h2>
 <p>Please report issues <a href="https://github.com/zellij-org/zellij/issues">here.</a></p>
+<hr />
+<h1 id="terminal-features"><a class="header" href="#terminal-features">Terminal Features</a></h1>
+<p>Zellij sits between the programs running in its panes and the terminal emulator it runs in. Some terminal capabilities are therefore passed through, translated or emulated. When Zellij starts, it queries the terminal it is running in for the features it supports, and only advertises those to the programs running inside panes.</p>
+<h2 id="images-kitty-graphics-protocol"><a class="header" href="#images-kitty-graphics-protocol">Images (kitty graphics protocol)</a></h2>
+<p>Programs running inside panes can display images using the <a href="https://sw.kovidgoyal.net/kitty/graphics-protocol/">kitty graphics protocol</a>. Zellij keeps track of image placements per pane, so images survive resizing, relayouts, scrolling through the scrollback, fullscreen, and floating or pinned panes.</p>
+<p>This requires the host terminal to support the protocol, which is queried when Zellij starts. It can be turned off with the <a href="./options.html#support_kitty_graphics_protocol"><code>support_kitty_graphics_protocol</code></a> option (changing it requires restarting Zellij).</p>
+<h2 id="sixel"><a class="header" href="#sixel">Sixel</a></h2>
+<p>Sixel graphics are supported. Sixel support is only advertised to programs running in panes (through <code>DA1</code> and <code>XTSMGRAPHICS</code>) if the terminal Zellij is attached to actually supports Sixel. In previous versions it was advertised unconditionally, which could cause programs to emit Sixel data into terminals that could not display it.</p>
+<h2 id="desktop-notifications"><a class="header" href="#desktop-notifications">Desktop notifications</a></h2>
+<p>Programs running in panes can raise desktop notifications through <code>OSC 9</code>, <code>OSC 99</code> (the kitty notification protocol) and <code>OSC 777</code>. Zellij forwards them to all attached host terminals, using the protocol selected by the <a href="./options.html#host_notification_protocol"><code>host_notification_protocol</code></a> option:</p>
+<ul>
+<li><code>auto</code> (default) - <code>OSC 99</code> for terminals that support it (eg. kitty), <code>OSC 9</code> otherwise</li>
+<li><code>osc9</code> / <code>osc99</code> - always use the given protocol</li>
+<li><code>bell</code> - emit a terminal bell instead</li>
+<li><code>off</code> - do not forward notifications</li>
+</ul>
+<p>Whether a notification is actually shown is up to the host terminal and the operating system.</p>
+<h2 id="terminal-focus-reporting"><a class="header" href="#terminal-focus-reporting">Terminal focus reporting</a></h2>
+<p>Focus in/out events reported by the host terminal (<code>CSI I</code> / <code>CSI O</code>) are tracked per connected client and forwarded to panes that enabled focus reporting (mode <code>1004</code>). This also works across <a href="./nested-sessions.html">nested sessions</a>.</p>
+<h2 id="clipboard-osc-52"><a class="header" href="#clipboard-osc-52">Clipboard (OSC 52)</a></h2>
+<p>Copying to the system clipboard through <code>OSC 52</code> works as before, and this capability is advertised to programs through <code>DA1</code>. If the terminal does not support <code>OSC 52</code>, an external utility can be used instead with the <a href="./options.html#copy_command"><code>copy_command</code></a> option.</p>
+<p><strong>Reading</strong> the clipboard through <code>OSC 52</code> is disabled by default since <code>0.45.0</code>: programs asking for the clipboard contents receive an empty reply. It can be enabled with the <a href="./options.html#dangerously_enable_paste_buffer_read"><code>dangerously_enable_paste_buffer_read</code></a> option, but note that once enabled, any program in any pane - including one running on a remote machine over SSH - can read the clipboard without prompting.</p>
+<h2 id="terminal-color-scheme"><a class="header" href="#terminal-color-scheme">Terminal color scheme</a></h2>
+<p>Zellij follows the color scheme reported by the host terminal (<code>DSR 997</code> replies and <code>CSI 2031</code> notifications) and can switch between a light and a dark theme accordingly - see <a href="./themes.html#automatic-dark-and-light-theme-switching">themes</a>. Programs running in panes can subscribe to these notifications themselves with <code>CSI ? 2031 h</code>, and query the current mode with <code>DECRQM</code>; Zellij answers these queries itself.</p>
 <hr />
 <h1 id="known-issues"><a class="header" href="#known-issues">Known Issues</a></h1>
 <h2 id="the-status-bar-fonts-dont-render-correctly"><a class="header" href="#the-status-bar-fonts-dont-render-correctly">The status bar fonts don't render correctly:</a></h2>
@@ -10328,6 +11000,8 @@ under Linux/OS X such as GNOMEs default Terminal, terminator, and more.</p>
 <p>A workaround for this was added in zellij &gt; 0.24.0 and enables the user to
 specify a custom command that copies selected text to the system clipboard.
 Refer to lines containing "copy_command" from the output of <code>zellij setup --dump-config</code>.</p>
+<p>Note that since <code>0.45.0</code>, the <code>copy_command</code> process is no longer killed while it
+still owns the selection, which fixes copying with utilities such as <code>wl-copy</code>.</p>
 <p>For technical background, refer to <a href="https://github.com/zellij-org/zellij/issues/627">this
 issue</a> and <a href="https://github.com/zellij-org/zellij/pull/996">this merge
 request</a></p>

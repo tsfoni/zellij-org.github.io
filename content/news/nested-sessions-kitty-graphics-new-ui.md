@@ -1,7 +1,7 @@
 ---
 author: "Aram Drevekenin"
 authorlink: "https://hachyderm.io/@imsnif"
-date: 2026-08-19
+date: 2026-08-20
 linktitle: "Zellij 0.45.0: nested sessions, Kitty graphics, a fresh UI"
 type:
 - post
@@ -25,6 +25,7 @@ Some highlights:
 - [Kitty Graphics Protocol](#kitty-graphics-protocol)
 - [Mobile Web UI](#mobile-web-ui)
 - [New UI](#new-ui)
+- [Scrolling by Command](#scrolling-by-command)
 - [Per-Client Tab Sizes](#per-client-tab-sizes)
 - [Focus Last Pane and Fullscreen Floating Panes](#focus-last-pane-and-fullscreen-floating-panes)
 - [Release Notes That Update Your Keybindings](#release-notes-that-update-your-keybindings)
@@ -72,6 +73,23 @@ stacked_pane_list false
 ```
 
 *For more info about how to better use stackes, check out the [Stacked Resize Screencast/Tutorial](/tutorials/stacked-resize/)*
+
+## Scrolling by Command
+Zellij now allows scrolling by command rather than line by line. This is possible with shells that emit OSC133 to distinguish the command start, end and status.
+
+Some new keybindings to support this:
+
+1. **Jump between prompts** - `Ctrl s` + `[` and `Ctrl s` + `]` move up and down the scrollback one command at a time, rather than one line or one page at a time.
+2. **Select a whole command with its output** - `Ctrl s` + `m` selects the command at the current scroll position together with everything it printed. Triple-clicking anywhere inside a command's output does the same thing.
+3. **Copy the output of the last command** - `Ctrl s` + `c` copies what the last command printed straight to the clipboard, with a brief flash showing exactly what was copied.
+
+**This is also possible with the mouse scroll**: hold `<Alt>` and scroll with the mouse.
+
+This can be useful when a command spews hundreds of lines and you want the whole thing (and nothing else) in your clipboard to paste elsewhere.
+
+There is nothing to set up on the Zellij side. `fish` emits these sequences out of the box, while `bash` and `zsh` need a shell integration snippet - the same ones distributed for other terminals work here as well.
+
+*For more info, see the [Shell Integration documentation](/documentation/shell-integration.html).*
 
 ## Per-Client Tab Sizes
 Tabs can now have different sizes for different clients. When several clients are attached to the same session and are focused on different tabs, each tab is sized to its own client. Previously, all tabs shared the size of the smallest client - meaning one person attaching from a laptop would shrink everyone's screen. Now tabs are only shrunk when clients are actually focused on the same tab.

@@ -164,6 +164,12 @@
 <p><strong>Possible arguments</strong>: None</p>
 <pre><code class="language-javascript">    bind "a" { Copy; }
 </code></pre>
+<h2 id="copylastcommandoutput"><a class="header" href="#copylastcommandoutput"><code>CopyLastCommandOutput</code></a></h2>
+<p>Copy the output of the last command run in the focused pane to the clipboard. Requires the shell to emit <a href="./shell-integration.html">OSC 133 shell integration</a> sequences, which delimit the command's output. The copied region is briefly flashed in the pane.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>c</code> in <code>scroll</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { CopyLastCommandOutput; }
+</code></pre>
 <h2 id="breakpane"><a class="header" href="#breakpane"><code>BreakPane</code></a></h2>
 <p>Break the focused pane out of its current tab into a new tab</p>
 <p><strong>Possible arguments</strong>: None</p>
@@ -217,6 +223,24 @@
 </code></pre>
 <p>or with ANSI styling preserved:</p>
 <pre><code class="language-javascript">    bind "a" { EditScrollback { ansi true; } }
+</code></pre>
+<h2 id="focusguestsession"><a class="header" href="#focusguestsession"><code>FocusGuestSession</code></a></h2>
+<p>When the focused pane contains a <a href="./nested-sessions.html">nested Zellij session</a>, descend into it - routing keyboard and mouse input to the nested (guest) session and dimming the chrome of the host session.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>[</code> in <code>session</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { FocusGuestSession; }
+</code></pre>
+<h2 id="focushostsession"><a class="header" href="#focushostsession"><code>FocusHostSession</code></a></h2>
+<p>When running inside a <a href="./nested-sessions.html">nested Zellij session</a>, return focus to the host (outer) session.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>]</code> in <code>session</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { FocusHostSession; }
+</code></pre>
+<h2 id="focuslastpane"><a class="header" href="#focuslastpane"><code>FocusLastPane</code></a></h2>
+<p>Change focus back to the pane that was focused before the currently focused one. Takes floating panes into account, and swaps the pane in place when the focused pane is fullscreen.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>;</code> in <code>pane</code> mode and to <code>Alt \</code> in all modes.</p>
+<pre><code class="language-javascript">    bind "a" { FocusLastPane; }
 </code></pre>
 <h2 id="focusnextpane"><a class="header" href="#focusnextpane"><code>FocusNextPane</code></a></h2>
 <p>Change focus to the next pane (order not guaranteed)</p>
@@ -504,6 +528,18 @@
 <p><strong>Possible arguments</strong>: None</p>
 <pre><code class="language-javascript">    bind "a" { ScrollToBottom; }
 </code></pre>
+<h2 id="scrolltonextprompt"><a class="header" href="#scrolltonextprompt"><code>ScrollToNextPrompt</code></a></h2>
+<p>Scroll the focused pane down to the next shell prompt in its scrollback. Requires the shell to emit <a href="./shell-integration.html">OSC 133 shell integration</a> sequences.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>]</code> in <code>scroll</code> and <code>search</code> modes.</p>
+<pre><code class="language-javascript">    bind "a" { ScrollToNextPrompt; }
+</code></pre>
+<h2 id="scrolltopreviousprompt"><a class="header" href="#scrolltopreviousprompt"><code>ScrollToPreviousPrompt</code></a></h2>
+<p>Scroll the focused pane up to the previous shell prompt in its scrollback. Requires the shell to emit <a href="./shell-integration.html">OSC 133 shell integration</a> sequences.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>[</code> in <code>scroll</code> and <code>search</code> modes.</p>
+<pre><code class="language-javascript">    bind "a" { ScrollToPreviousPrompt; }
+</code></pre>
 <h2 id="scrollup"><a class="header" href="#scrollup"><code>ScrollUp</code></a></h2>
 <p>Scroll the focused pane up 1 line</p>
 <p><strong>Possible arguments</strong>: None</p>
@@ -529,6 +565,12 @@
 <p><strong>Required arguments</strong>: "CaseSensitivity" | "Wrap" | "WhileWord"</p>
 <pre><code class="language-javascript">    bind "a" { SearchToggleOption "CaseSensitivity"; }
 </code></pre>
+<h2 id="selectcommandatscrollposition"><a class="header" href="#selectcommandatscrollposition"><code>SelectCommandAtScrollPosition</code></a></h2>
+<p>Select the command and its output at the current scroll position of the focused pane, so that it can be copied. Requires the shell to emit <a href="./shell-integration.html">OSC 133 shell integration</a> sequences.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>m</code> in <code>scroll</code> and <code>search</code> modes.</p>
+<pre><code class="language-javascript">    bind "a" { SelectCommandAtScrollPosition; }
+</code></pre>
 <h2 id="setdarktheme"><a class="header" href="#setdarktheme"><code>SetDarkTheme</code></a></h2>
 <p>Switch the theme to dark (uses the configured <code>theme_dark</code>).</p>
 <p><strong>Possible arguments</strong>: None</p>
@@ -538,6 +580,11 @@
 <p>Switch the theme to light (uses the configured <code>theme_light</code>).</p>
 <p><strong>Possible arguments</strong>: None</p>
 <pre><code class="language-javascript">    bind "a" { SetLightTheme; }
+</code></pre>
+<h2 id="setpaneframestyle"><a class="header" href="#setpaneframestyle"><code>SetPaneFrameStyle</code></a></h2>
+<p>Set the style of the pane frames for the whole session (see the <a href="./options.html#pane_frame_style"><code>pane_frame_style</code></a> option)</p>
+<p><strong>Required arguments</strong>: "full" | "titles" | "none"</p>
+<pre><code class="language-javascript">    bind "a" { SetPaneFrameStyle "full"; }
 </code></pre>
 <h2 id="switchtomode"><a class="header" href="#switchtomode"><code>SwitchToMode</code></a></h2>
 <p>Switch the current input mode</p>
@@ -598,6 +645,18 @@
 <p>Toggle the focused pane as fullscreen on/off</p>
 <p><strong>Possible arguments</strong>: None</p>
 <pre><code class="language-javascript">    bind "a" { ToggleFocusFullscreen; }
+</code></pre>
+<h2 id="togglefocusnouifullscreen"><a class="header" href="#togglefocusnouifullscreen"><code>ToggleFocusNoUiFullscreen</code></a></h2>
+<p>Toggle the focused pane as fullscreen on/off, with the pane taking up the entire display - including the space normally occupied by the UI bars (eg. the tab-bar and status-bar). Unlike <code>ToggleFocusFullscreen</code>, which keeps them visible.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>Shift f</code> in <code>pane</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { ToggleFocusNoUiFullscreen; }
+</code></pre>
+<h2 id="togglehostfullscreen"><a class="header" href="#togglehostfullscreen"><code>ToggleHostFullscreen</code></a></h2>
+<p>When running inside a <a href="./nested-sessions.html">nested Zellij session</a>, toggle the fullscreen state of this session's pane within the host (outer) session.</p>
+<p><strong>Possible arguments</strong>: None</p>
+<p>By default bound to <code>f</code> in <code>session</code> mode.</p>
+<pre><code class="language-javascript">    bind "a" { ToggleHostFullscreen; }
 </code></pre>
 <h2 id="togglemousemode"><a class="header" href="#togglemousemode"><code>ToggleMouseMode</code></a></h2>
 <p>Toggle mouse support on/off</p>

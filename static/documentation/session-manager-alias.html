@@ -168,6 +168,8 @@
 <li><strong>View session metadata</strong> - See tab counts, connected clients, and other session information</li>
 <li><strong>Web sharing controls</strong> - Start/stop the web server and manage sharing settings from within the session manager</li>
 </ol>
+<h2 id="dismissing-the-session-manager"><a class="header" href="#dismissing-the-session-manager">Dismissing the session manager</a></h2>
+<p>Pressing <code>Esc</code> or <code>Ctrl c</code> closes the session manager rather than hiding it. It also closes itself after switching to another session.</p>
 <h2 id="contract"><a class="header" href="#contract">Contract</a></h2>
 <p>Zellij loads the session-manager as a floating pane. Plugins implementing this alias should expect to be loaded in floating mode and should provide a navigable interface for the features listed above.</p>
 <p>The session-manager is a built-in plugin and can be replaced by specifying a different plugin URL for the <code>session-manager</code> alias in the <a href="./configuration.html">configuration</a>.</p>
